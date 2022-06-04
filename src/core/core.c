@@ -36,8 +36,8 @@ static enum image_format _parse_image_format(FILE *file) {
     }
 }
 
-void convert_image(const char *input_path, const char *algorithm,
-                   const char *output_path) {
+void convert_image(const char *input_path, const char *output_path,
+                   const char *algorithm) {
     FILE *image_file = fopen(input_path, "rb");
     enum image_format _image_format = _parse_image_format(image_file);
 

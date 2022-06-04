@@ -7,6 +7,6 @@ enum alghoritms get_alghoritm_type(const char *alghoritm) {
     } else if (0 == strcmp(alghoritm, "horizontal_mirror")) {
         return VERTICAL_MIRROR;
     } else {
-        return UNKNOWN_ALHORITM;
+        return -1;
     }
 }

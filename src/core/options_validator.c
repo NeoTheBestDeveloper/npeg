@@ -25,7 +25,7 @@ static void _validate_algorithm(const char *algoritm) {
     if (algoritm == NULL)
         print_error("Error: no alghoritm name.\n", -1);
 
-    if (get_alghoritm_type(algoritm) == UNKNOWN_ALHORITM)
+    if (get_alghoritm_type(algoritm) == -1)
         print_error("Error: unknown alghoritm.\n", -1);
 }
 

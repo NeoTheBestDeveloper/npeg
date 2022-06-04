@@ -4,22 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../alghoritms/alghoritms.h"
+#include "../../alghoritms/mirror/pbm_mirror.h"
 #include "../core.h"
 #include "pbm_image.h"
 #include "utils.h"
 
 static void _parse_pbm_header(int image_size[2], FILE *file) {
     fscanf(file, "%d %d\n", image_size, image_size + 1);
-}
-
-static unsigned char _reverse_bits(unsigned char n) {
-    unsigned int NO_OF_BITS = sizeof(n) * 8;
-    unsigned char reverse_num = 0;
-    for (int i = 0; i < NO_OF_BITS; i++) {
-        if ((n & (1 << i)))
-            reverse_num |= 1 << ((NO_OF_BITS - 1) - i);
-    }
-    return reverse_num;
 }
 
 static unsigned char **_read_image_data(FILE *file, int width, int height,
@@ -38,29 +30,6 @@ static unsigned char **_read_image_data(FILE *file, int width, int height,
     }
 
     return image_data;
-}
-
-static void _vertical_reverse_ascii_photo(pbm_image *image) {
-    for (int i = 0; i < image->height; i++) {
-        for (int j = 0; j < image->width / 2; j++) {
-            unsigned char tmp = image->image_data[i][j];
-            image->image_data[i][j] =
-                image->image_data[i][image->width - j - 1];
-            image->image_data[i][image->width - j - 1] = tmp;
-        }
-    }
-}
-
-static void _vertical_reverse_raw_photo(pbm_image *image) {
-    int width = PIXELS_TO_BYTES_WIDTH(image->width);
-    for (int i = 0; i < image->height; i++) {
-        for (int j = 0; j < width / 2; j++) {
-            unsigned char tmp = image->image_data[i][j];
-            image->image_data[i][j] =
-                _reverse_bits(image->image_data[i][width - j - 1]);
-            image->image_data[i][width - j - 1] = _reverse_bits(tmp);
-        }
-    }
 }
 
 static void _dump_ascii_photo(pbm_image *image, const char *path) {
@@ -111,20 +80,14 @@ void dump_image(pbm_image *image, const char *path) {
         _dump_ascii_photo(image, path);
 }
 
-void reverse_photo(pbm_image *image, enum direction _direction) {
-    switch (_direction) {
-    case VERTICAL:
-        if (image->type == RAW)
-            _vertical_reverse_raw_photo(image);
-        else
-            _vertical_reverse_ascii_photo(image);
+void convert_pbm_image(pbm_image *image, const char *alghoritm) {
+    enum alghoritms alghoritm_type = get_alghoritm_type(alghoritm);
+    switch (alghoritm_type) {
+    case VERTICAL_MIRROR:
+        vertical_pbm_mirror(image);
         break;
-        // case HORIZONTAL:
-        //     if (image->type == RAW)
-        //         _horizontal_reverse_raw_photo(image);
-        //     else
-        //         _horizontal_reverse_ascii_photo(image);
-        //     break;
+    case HORIZONTAL_MIRROR:
+        horizontal_pbm_mirror(image);
+        break;
     }
 }
-void convert_pbm_image(pbm_image *image, const char *alghoritm) {}
