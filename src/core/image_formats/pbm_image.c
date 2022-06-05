@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../../utils/utils.h"
 #include "../alghoritms/alghoritms.h"
@@ -17,6 +18,7 @@ static int _pixels_to_bytes_width(int width) {
 
 static void _read_header(pbm_image *image, FILE *image_file) {
     char buffer[2048];
+    image->comment_lines_count = 0;
 
     // Skip string with magic num (+ 1 - one whitespace symbol).
     fread(buffer, 1, MAGIC_NUM_LENGTH + 1, image_file);
@@ -24,6 +26,12 @@ static void _read_header(pbm_image *image, FILE *image_file) {
     // Skip string if it is comment.
     while (fgetc(image_file) == '#') {
         fgets(buffer, sizeof(buffer), image_file);
+        image->comments =
+            (char **)realloc(image->comments, ++(image->comment_lines_count));
+        image->comments[image->comment_lines_count - 1] =
+            (char *)malloc(strlen(buffer) + 1);
+        strncpy(image->comments[image->comment_lines_count - 1], buffer,
+                strlen(buffer));
 
         if (feof(image_file))
             print_error("Error: couldn't read file.", -1);
@@ -77,7 +85,16 @@ void dump_pbm_image(pbm_image *image, const char *path) {
     char *magic_num = (image->encoding == RAW) ? "P4" : "P1";
 
     FILE *fout = fopen(path, mode);
-    fprintf(fout, "%s\n%d %d\n", magic_num, image->width, image->height);
+
+    // Write magic num.
+    fprintf(fout, "%s\n", magic_num);
+
+    // Write comments.
+    for (int i = 0; i < image->comment_lines_count; i++)
+        fprintf(fout, "#%s", image->comments[i]);
+
+    // Write image size.
+    fprintf(fout, "%d %d\n", image->width, image->height);
 
     for (int i = 0; i < image->height; i++)
         fwrite(image->image_data[i], 1, image->bytes_width, fout);
@@ -98,9 +115,16 @@ pbm_image create_pbm_image(FILE *image_file, enum image_encodings encoding) {
 }
 
 void free_pbm_image(pbm_image *image) {
+    // Free image data.
     for (int i = 0; i < image->height; i++)
         free(image->image_data[i]);
     free(image->image_data);
+
+    // Free comment.
+
+    for (int i = 0; i < image->comment_lines_count; i++)
+        free(image->comments[i]);
+    free(image->comments);
 }
 
 void process_pbm_image(pbm_image *image, const char *alghoritm) {

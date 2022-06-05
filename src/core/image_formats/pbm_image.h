@@ -5,10 +5,11 @@
 
 #include "image_formats.h"
 
-// TODO: add headers.
 typedef struct {
     int width, height; // In pixels.
     int bytes_width;
+    char **comments;
+    int comment_lines_count;
     enum image_encodings encoding;
     unsigned char **image_data;
 } pbm_image;
