@@ -8,7 +8,6 @@
 #include "../../alghoritms/mirror/pbm_mirror.h"
 #include "pbm_image.h"
 
-// TODO: add ignoring whitespace symbols and comments.
 static void _parse_pbm_header(int image_size[2], FILE *file) {
     char buffer[1024];
     while (1) {
@@ -75,14 +74,13 @@ static void _dump_raw_photo(pbm_image *image, const char *path) {
     fclose(fout);
 }
 
-pbm_image create_pbm_image(FILE *file, enum image_format type) {
+pbm_image create_pbm_image(FILE *file, enum pbm_types type) {
     int image_size[2]; // 0 - width, 1 - height
     _parse_pbm_header(image_size, file);
-    enum pbm_types image_type = (type == RAW_PBM) ? RAW : ASCII;
     unsigned char **image_data =
-        _read_image_data(file, image_size[0], image_size[1], image_type);
+        _read_image_data(file, image_size[0], image_size[1], type);
 
-    pbm_image image = {image_size[0], image_size[1], image_type, image_data};
+    pbm_image image = {image_size[0], image_size[1], type, image_data};
     return image;
 }
 

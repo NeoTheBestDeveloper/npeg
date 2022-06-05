@@ -44,7 +44,8 @@ void convert_image(const char *input_path, const char *output_path,
     switch (_image_format) {
     case RAW_PBM:
     case ASCII_PBM: {
-        CONVERT_IMAGE(pbm, image_file, _image_format)
+        enum pbm_types image_type = (_image_format == RAW_PBM) ? RAW : ASCII;
+        CONVERT_IMAGE(pbm, image_file, image_type)
         break;
     }
     case ASCII_PGM:
