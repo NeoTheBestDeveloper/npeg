@@ -6,12 +6,20 @@
 
 #include "../../alghoritms/alghoritms.h"
 #include "../../alghoritms/mirror/pbm_mirror.h"
-#include "../core.h"
 #include "pbm_image.h"
-#include "utils.h"
 
 // TODO: add ignoring whitespace symbols and comments.
 static void _parse_pbm_header(int image_size[2], FILE *file) {
+    char buffer[1024];
+    while (1) {
+        unsigned char byte = fgetc(file);
+        if (byte == '#') {
+            fgets(buffer, sizeof(buffer), file);
+        } else {
+            fseek(file, -1, SEEK_CUR);
+            break;
+        }
+    }
     fscanf(file, "%d %d\n", image_size, image_size + 1);
 }
 
@@ -26,7 +34,17 @@ static unsigned char **_read_image_data(FILE *file, int width, int height,
     for (int i = 0; i < height; i++) {
         image_data[i] = (unsigned char *)malloc(width);
         for (int j = 0; j < width; j++) {
-            fscanf(file, "%c", image_data[i] + j);
+            if (type == ASCII) {
+                unsigned char byte;
+                while (1) {
+                    fscanf(file, "%c", &byte);
+                    if (byte != ' ' && byte != '\n')
+                        break;
+                }
+                image_data[i][j] = byte;
+            } else {
+                fscanf(file, "%c", image_data[i] + j);
+            }
         }
     }
 
