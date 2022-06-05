@@ -7,6 +7,8 @@
 #include "./utils/utils.h"
 #include "./validator/options_validator.h"
 
+#define VERSION "0.0.1"
+
 int is_exists_key_option_value(int argc, int key_option_position) {
     return !(key_option_position + 1 >= argc);
 }
@@ -16,16 +18,24 @@ char *parse_key_option_value(int key_option_position, int argc,
     if (is_exists_key_option_value(argc, key_option_position)) {
         return argv[key_option_position + 1];
     }
-    fprintf(stderr, "Error: %s key option does not have value\n",
+    fprintf(stderr, "Error: \"%s\" key option does not have value\n",
             key_option_name);
     exit(-1);
 }
 
 void get_help() {
-    printf("Usage:\n\tnpeg -i <INPUT_PATH> -a <ALGORITHM_NAME> -o "
-           "<OUTPUT_PATH>\n\nAviable formats:\n\tPBM\n\nAviable "
-           "algorithms:\n\tvertical_mirror\t\tMirroring image by y "
-           "axe.\n\thorizontal_mirror\tMirroring image by x axe.\n");
+    printf("npeg %s\n"
+           "A command-line bitmap images converter.\n\n"
+           "Usage:\n\tnpeg -i <INPUT_PATH> -a <ALGORITHM_NAME> -o "
+           "<OUTPUT_PATH>\n\n"
+           "Options:\n\t"
+           "-h, --help\t\tPrint help information.\n\n"
+           "Aviable formats:\n\tPBM\n\n"
+           "Aviable algorithms:\n\t"
+           "vertical_mirror\t\tMirroring image by y axe.\n\n"
+           // "horizontal_mirror\tMirroring image by x axe.\n"
+           "Author:\n\tnpeg was written by Neo <kiankasey91@gmail.com>.\n",
+           VERSION);
     exit(0);
 }
 
