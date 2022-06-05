@@ -10,6 +10,7 @@
 #include "pbm_image.h"
 #include "utils.h"
 
+// TODO: add ignoring whitespace symbols and comments.
 static void _parse_pbm_header(int image_size[2], FILE *file) {
     fscanf(file, "%d %d\n", image_size, image_size + 1);
 }
@@ -71,6 +72,7 @@ void free_pbm_image(pbm_image *image) {
     for (int i = 0; i < image->height; i++) {
         free(image->image_data[i]);
     }
+    free(image->image_data);
 }
 
 void dump_image(pbm_image *image, const char *path) {
@@ -81,8 +83,7 @@ void dump_image(pbm_image *image, const char *path) {
 }
 
 void convert_pbm_image(pbm_image *image, const char *alghoritm) {
-    enum alghoritms alghoritm_type = get_alghoritm_type(alghoritm);
-    switch (alghoritm_type) {
+    switch (get_alghoritm_type(alghoritm)) {
     case VERTICAL_MIRROR:
         vertical_pbm_mirror(image);
         break;
