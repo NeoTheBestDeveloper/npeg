@@ -4,8 +4,8 @@
 #include <unistd.h>
 
 #include "./core/core.h"
-#include "./core/options_validator.h"
 #include "./utils/utils.h"
+#include "./validator/options_validator.h"
 
 int is_exists_key_option_value(int argc, int key_option_position) {
     return !(key_option_position + 1 >= argc);

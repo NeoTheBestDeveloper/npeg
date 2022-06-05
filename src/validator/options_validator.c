@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "../alghoritms/alghoritms.h"
+#include "../core/alghoritms/alghoritms.h"
 #include "../utils/utils.h"
 #include "options_validator.h"
 

@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../alghoritms/alghoritms.h"
-#include "../../alghoritms/mirror/pbm_mirror.h"
+#include "../alghoritms/alghoritms.h"
+#include "../alghoritms/mirror/pbm_mirror.h"
 #include "pbm_image.h"
 
 static void _parse_pbm_header(int image_size[2], FILE *file) {

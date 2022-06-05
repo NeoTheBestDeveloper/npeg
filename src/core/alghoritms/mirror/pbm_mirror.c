@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "../../core/image_types/pbm_image.h"
+#include "../../image_types/pbm_image.h"
 
 static unsigned char _reverse_bits(unsigned char n) {
     // Reverse bits string.
