@@ -1,109 +1,106 @@
-#include <limits.h>
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
+#include "../../utils/utils.h"
 #include "../alghoritms/alghoritms.h"
 #include "../alghoritms/flip/pbm_flip.h"
 #include "image_formats.h"
 #include "pbm_image.h"
 
-// TODO: rewrite better.
-static void _parse_pbm_header(int image_size[2], FILE *file) {
-    char buffer[1024];
+#define MAGIC_NUM_LENGTH 2
 
-    // Skip string with magic num.
-    fgets(buffer, sizeof(buffer), file);
-
-    while (1) {
-        unsigned char byte = fgetc(file);
-
-        // Skip line if it is comment.
-        if (byte == '#') {
-            fgets(buffer, sizeof(buffer), file);
-        } else {
-            fseek(file, -1, SEEK_CUR);
-            break;
-        }
-    }
-    fscanf(file, "%d %d\n", image_size, image_size + 1);
+static int _pixels_to_bytes_width(int width) {
+    return ceil((double)width / 8.0);
 }
 
-static unsigned char **_read_image_data(FILE *file, int width, int height,
-                                        enum image_encodings encoding) {
-    if (encoding == RAW)
-        width = PIXELS_TO_BYTES_WIDTH(width);
+static void _read_header(pbm_image *image, FILE *image_file) {
+    char buffer[2048];
 
-    unsigned char **image_data =
-        (unsigned char **)malloc(sizeof(unsigned char *) * height);
+    // Skip string with magic num (+ 1 - one whitespace symbol).
+    fread(buffer, 1, MAGIC_NUM_LENGTH + 1, image_file);
 
-    for (int i = 0; i < height; i++) {
-        image_data[i] = (unsigned char *)malloc(width);
-        for (int j = 0; j < width; j++) {
-            if (encoding == ASCII) {
-                unsigned char byte;
-                while (1) {
-                    fscanf(file, "%c", &byte);
-                    if (byte != ' ' && byte != '\n')
-                        break;
-                }
-                image_data[i][j] = byte;
-            } else {
-                fscanf(file, "%c", image_data[i] + j);
+    // Skip string if it is comment.
+    while (fgetc(image_file) == '#') {
+        fgets(buffer, sizeof(buffer), image_file);
+
+        if (feof(image_file))
+            print_error("Error: couldn't read file.", -1);
+    }
+    fseek(image_file, -1, SEEK_CUR);
+
+    fscanf(image_file, "%d%d", &image->width, &image->height);
+    image->bytes_width = (image->encoding == RAW)
+                             ? _pixels_to_bytes_width(image->width)
+                             : image->width;
+}
+
+static void _read_raw_image_data(pbm_image *image, FILE *image_file) {
+    image->image_data =
+        (unsigned char **)malloc(sizeof(unsigned char *) * image->height);
+    for (int i = 0; i < image->height; i++) {
+        if (feof(image_file))
+            print_error("Error: couldn't read file.", -1);
+
+        image->image_data[i] = (unsigned char *)malloc(image->bytes_width);
+        fread(image->image_data[i], 1, image->bytes_width, image_file);
+    }
+}
+
+static void _read_ascii_image_data(pbm_image *image, FILE *image_file) {
+    image->image_data =
+        (unsigned char **)malloc(sizeof(unsigned char *) * image->height);
+    for (int i = 0; i < image->height; i++) {
+        image->image_data[i] = (unsigned char *)malloc(image->bytes_width);
+        for (int j = 0; j < image->bytes_width; j++) {
+            unsigned char byte;
+            while (isspace(byte = fgetc(image_file))) {
+                if (feof(image_file))
+                    print_error("Error: couldn't read file.", -1);
             }
+            image->image_data[i][j] = byte;
         }
     }
-
-    return image_data;
 }
 
-static void _dump_ascii_photo(pbm_image *image, const char *path) {
-    FILE *fout = fopen(path, "wt");
-    fprintf(fout, "P1\n%d %d\n", image->width, image->height);
+static void _read_image_data(pbm_image *image, FILE *image_file,
+                             enum image_encodings encoding) {
+    if (encoding == RAW)
+        _read_raw_image_data(image, image_file);
+    else
+        _read_ascii_image_data(image, image_file);
+}
 
-    for (int i = 0; i < image->height; i++) {
-        for (int j = 0; j < image->width; j++) {
-            fprintf(fout, "%c ", image->image_data[i][j]);
-        }
-    }
+void dump_pbm_image(pbm_image *image, const char *path) {
+    char *mode = (image->encoding == RAW) ? "wb" : "wt";
+    char *magic_num = (image->encoding == RAW) ? "P4" : "P1";
+
+    FILE *fout = fopen(path, mode);
+    fprintf(fout, "%s\n%d %d\n", magic_num, image->width, image->height);
+
+    for (int i = 0; i < image->height; i++)
+        fwrite(image->image_data[i], 1, image->bytes_width, fout);
+
     fclose(fout);
 }
 
-static void _dump_raw_photo(pbm_image *image, const char *path) {
-    FILE *fout = fopen(path, "wb");
-    fprintf(fout, "P4\n%d %d\n", image->width, image->height);
+pbm_image create_pbm_image(FILE *image_file, enum image_encodings encoding) {
+    pbm_image image = {
+        .encoding = encoding,
+    };
 
-    for (int i = 0; i < image->height; i++) {
-        for (int j = 0; j < PIXELS_TO_BYTES_WIDTH(image->width); j++) {
-            fprintf(fout, "%c", image->image_data[i][j]);
-        }
-    }
-    fclose(fout);
-}
+    // Read width, height, calc bytes width.
+    _read_header(&image, image_file);
 
-pbm_image create_pbm_image(FILE *file, enum image_encodings encoding) {
-    int image_size[2]; // 0 - width, 1 - height
-    _parse_pbm_header(image_size, file);
-    unsigned char **image_data =
-        _read_image_data(file, image_size[0], image_size[1], encoding);
-
-    pbm_image image = {image_size[0], image_size[1], encoding, image_data};
+    _read_image_data(&image, image_file, encoding);
     return image;
 }
 
 void free_pbm_image(pbm_image *image) {
-    for (int i = 0; i < image->height; i++) {
+    for (int i = 0; i < image->height; i++)
         free(image->image_data[i]);
-    }
     free(image->image_data);
-}
-
-void dump_pbm_image(pbm_image *image, const char *path) {
-    if (image->encoding == RAW)
-        _dump_raw_photo(image, path);
-    else
-        _dump_ascii_photo(image, path);
 }
 
 void process_pbm_image(pbm_image *image, const char *alghoritm) {
