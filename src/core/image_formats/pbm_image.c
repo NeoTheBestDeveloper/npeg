@@ -38,7 +38,8 @@ static void _read_header(pbm_image *image, FILE *image_file) {
     }
     fseek(image_file, -1, SEEK_CUR);
 
-    fscanf(image_file, "%d%d", &image->width, &image->height);
+    fscanf(image_file, "%d %d\n", &image->width, &image->height);
+
     image->bytes_width = (image->encoding == RAW)
                              ? _pixels_to_bytes_width(image->width)
                              : image->width;
@@ -121,7 +122,6 @@ void free_pbm_image(pbm_image *image) {
     free(image->image_data);
 
     // Free comment.
-
     for (int i = 0; i < image->comment_lines_count; i++)
         free(image->comments[i]);
     free(image->comments);
