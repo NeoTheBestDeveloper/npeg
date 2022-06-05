@@ -43,11 +43,22 @@ static void _vertical_flip_raw_image(pbm_image *image) {
     }
 }
 
+void horizontal_pbm_flip(pbm_image *image) {
+    for (int i = 0; i < image->height / 2; i++) {
+        for (int j = 0; j < image->bytes_width; j++) {
+            unsigned char tmp = image->image_data[i][j];
+
+            // just swap pixels from different edges of the image.
+            image->image_data[i][j] =
+                image->image_data[image->height - i - 1][j];
+            image->image_data[image->height - i - 1][j] = tmp;
+        }
+    }
+}
+
 void vertical_pbm_flip(pbm_image *image) {
     if (image->encoding == RAW)
         _vertical_flip_raw_image(image);
     else
         _vertical_flip_ascii_image(image);
 }
-
-void horizontal_pbm_flip(pbm_image *image) { printf("Not implemented"); }
