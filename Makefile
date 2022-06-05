@@ -14,6 +14,9 @@ TARGET=$(BUILD_DIR)/npeg
 
 all: $(TARGET)
 
+release: CFLAGS = -Wall -O2
+release: clean all
+
 
 $(TARGET): $(OBJS) 
 	$(MKDIR_P) $(BUILD_DIR)
