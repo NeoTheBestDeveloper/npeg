@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -Wall
-LDFLAGS = -lm
+# LDFLAGS = -lm
 
 MKDIR_P ?= mkdir -p
 

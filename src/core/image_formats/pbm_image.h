@@ -7,7 +7,6 @@
 
 typedef struct {
     int width, height; // In pixels.
-    int bytes_width;
     char **comments;
     int comment_lines_count;
     enum image_encodings encoding;
