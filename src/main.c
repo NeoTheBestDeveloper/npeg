@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "./core/core.h"
 #include "./utils/utils.h"
@@ -15,6 +14,7 @@ int is_exists_key_option_value(int argc, int key_option_position) {
 
 char *parse_key_option_value(int key_option_position, int argc,
                              const char *key_option_name, char *argv[]) {
+    // Check option value exsisting and return it if ok.
     if (is_exists_key_option_value(argc, key_option_position)) {
         return argv[key_option_position + 1];
     }
@@ -23,49 +23,57 @@ char *parse_key_option_value(int key_option_position, int argc,
     exit(-1);
 }
 
-void get_help() {
+void print_help() {
     printf("npeg %s\n"
            "A command-line bitmap images converter.\n\n"
-           "Usage:\n\tnpeg -i <INPUT_PATH> -a <ALGORITHM_NAME> -o "
+           "Usage:\n\tnpeg -i <INPUT_PATH> -a <ALGHORITM> -o "
            "<OUTPUT_PATH>\n\n"
            "Options:\n\t"
-           "-h, --help\t\tPrint help information.\n\n"
+           "-a, --alghoritm <ALGHORITM>\t\tAlghoritm name to process image.\n\t"
+           "-i, --input <INPUT_PATH>\t\tPath to input image.\n\t"
+           "-o, --output <OUTPUT_PATH>\t\tPath to output image.\n\t"
+           "-h, --help\t\t\t\tPrint help information.\n\n"
            "Aviable formats:\n\tPBM\n\n"
            "Aviable algorithms:\n\t"
-           "vertical_mirror\t\tMirroring image by y axe.\n\n"
-           // "horizontal_mirror\tMirroring image by x axe.\n"
+           "vertical_flip\t\tFlip image by y axe.\n\n"
+           // "horizontal_mirror\tFlip image by x axe.\n"
            "Author:\n\tnpeg was written by Neo <kiankasey91@gmail.com>.\n",
            VERSION);
     exit(0);
 }
 
 int main(int argc, char *argv[]) {
-    // Check arguments exsisting.
+    // Check options exsisting.
     if (argc == 1) {
-        print_error("Error: no arguments\n", -1);
+        print_error("Error: no options.\n", -1);
     }
 
     // Show help message.
     if (0 == strcmp(argv[1], "-h") || 0 == strcmp(argv[1], "--help")) {
-        get_help();
+        print_help();
     }
 
     char *input_path = NULL;
     char *output_path = NULL;
-    char *algorithm = NULL;
+    char *alghoritm = NULL;
 
     // Parse options.
     for (int i = 1; i < argc; i++) {
+        // Parse <INPUT_PATH>.
         if (0 == strcmp(argv[i], "-i") || 0 == strcmp(argv[i], "--input")) {
             input_path = parse_key_option_value(i, argc, "input", argv);
             i++;
-        } else if (0 == strcmp(argv[i], "-o") ||
-                   0 == strcmp(argv[i], "--output")) {
+        }
+        // Parse <OUTPUT_PATH>.
+        else if (0 == strcmp(argv[i], "-o") ||
+                 0 == strcmp(argv[i], "--output")) {
             output_path = parse_key_option_value(i, argc, "output", argv);
             i++;
-        } else if (0 == strcmp(argv[i], "-a") ||
-                   0 == strcmp(argv[i], "--algorithm")) {
-            algorithm = parse_key_option_value(i, argc, "algorithm", argv);
+        }
+        // Parse <ALGHORITM>.
+        else if (0 == strcmp(argv[i], "-a") ||
+                 0 == strcmp(argv[i], "--alghoritm")) {
+            alghoritm = parse_key_option_value(i, argc, "alghoritm", argv);
             i++;
         } else {
             fprintf(stderr, "Error: unknown option \"%s\".\n", argv[i]);
@@ -73,10 +81,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    validate_options_value(input_path, output_path, algorithm);
+    validate_options_value(input_path, output_path, alghoritm);
 
-    // Convert input image.
-    convert_image(input_path, output_path, algorithm);
+    // Process input image.
+    process_image(input_path, output_path, alghoritm);
 
     return 0;
 }

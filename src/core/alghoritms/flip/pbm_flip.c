@@ -1,7 +1,8 @@
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 
-#include "../../image_types/pbm_image.h"
+#include "../../image_formats/pbm_image.h"
 
 static unsigned char _reverse_bits(unsigned char n) {
     // Reverse bits string.
@@ -14,7 +15,7 @@ static unsigned char _reverse_bits(unsigned char n) {
     return mirror_num;
 }
 
-static void _vertical_mirror_ascii_photo(pbm_image *image) {
+static void _vertical_flip_ascii_photo(pbm_image *image) {
     for (int i = 0; i < image->height; i++) {
         for (int j = 0; j < image->width / 2; j++) {
             unsigned char tmp = image->image_data[i][j];
@@ -27,7 +28,7 @@ static void _vertical_mirror_ascii_photo(pbm_image *image) {
 
 // TODO: when bytes count is not multiple 8 it fill them and when I mirror image
 // TODO: photo is spoiled.
-static void _vertical_mirror_raw_photo(pbm_image *image) {
+static void _vertical_flip_raw_photo(pbm_image *image) {
     int width = PIXELS_TO_BYTES_WIDTH(image->width);
     for (int i = 0; i < image->height; i++) {
         for (int j = 0; j < width / 2; j++) {
@@ -39,12 +40,12 @@ static void _vertical_mirror_raw_photo(pbm_image *image) {
     }
 }
 
-void vertical_pbm_mirror(pbm_image *image) {
-    if (image->type == RAW) {
-        _vertical_mirror_raw_photo(image);
+void vertical_pbm_flip(pbm_image *image) {
+    if (image->encoding == RAW) {
+        _vertical_flip_raw_photo(image);
     } else {
-        _vertical_mirror_ascii_photo(image);
+        _vertical_flip_ascii_photo(image);
     }
 }
 
-void horizontal_pbm_mirror(pbm_image *image) { printf("Not implemented"); }
+void horizontal_pbm_flip(pbm_image *image) { printf("Not implemented"); }

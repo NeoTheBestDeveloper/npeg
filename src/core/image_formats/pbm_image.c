@@ -5,13 +5,21 @@
 #include <string.h>
 
 #include "../alghoritms/alghoritms.h"
-#include "../alghoritms/mirror/pbm_mirror.h"
+#include "../alghoritms/flip/pbm_flip.h"
+#include "image_formats.h"
 #include "pbm_image.h"
 
+// TODO: rewrite better.
 static void _parse_pbm_header(int image_size[2], FILE *file) {
     char buffer[1024];
+
+    // Skip string with magic num.
+    fgets(buffer, sizeof(buffer), file);
+
     while (1) {
         unsigned char byte = fgetc(file);
+
+        // Skip line if it is comment.
         if (byte == '#') {
             fgets(buffer, sizeof(buffer), file);
         } else {
@@ -23,8 +31,8 @@ static void _parse_pbm_header(int image_size[2], FILE *file) {
 }
 
 static unsigned char **_read_image_data(FILE *file, int width, int height,
-                                        enum pbm_types type) {
-    if (type == RAW)
+                                        enum image_encodings encoding) {
+    if (encoding == RAW)
         width = PIXELS_TO_BYTES_WIDTH(width);
 
     unsigned char **image_data =
@@ -33,7 +41,7 @@ static unsigned char **_read_image_data(FILE *file, int width, int height,
     for (int i = 0; i < height; i++) {
         image_data[i] = (unsigned char *)malloc(width);
         for (int j = 0; j < width; j++) {
-            if (type == ASCII) {
+            if (encoding == ASCII) {
                 unsigned char byte;
                 while (1) {
                     fscanf(file, "%c", &byte);
@@ -74,13 +82,13 @@ static void _dump_raw_photo(pbm_image *image, const char *path) {
     fclose(fout);
 }
 
-pbm_image create_pbm_image(FILE *file, enum pbm_types type) {
+pbm_image create_pbm_image(FILE *file, enum image_encodings encoding) {
     int image_size[2]; // 0 - width, 1 - height
     _parse_pbm_header(image_size, file);
     unsigned char **image_data =
-        _read_image_data(file, image_size[0], image_size[1], type);
+        _read_image_data(file, image_size[0], image_size[1], encoding);
 
-    pbm_image image = {image_size[0], image_size[1], type, image_data};
+    pbm_image image = {image_size[0], image_size[1], encoding, image_data};
     return image;
 }
 
@@ -91,20 +99,20 @@ void free_pbm_image(pbm_image *image) {
     free(image->image_data);
 }
 
-void dump_image(pbm_image *image, const char *path) {
-    if (image->type == RAW)
+void dump_pbm_image(pbm_image *image, const char *path) {
+    if (image->encoding == RAW)
         _dump_raw_photo(image, path);
     else
         _dump_ascii_photo(image, path);
 }
 
-void convert_pbm_image(pbm_image *image, const char *alghoritm) {
+void process_pbm_image(pbm_image *image, const char *alghoritm) {
     switch (get_alghoritm_type(alghoritm)) {
-    case VERTICAL_MIRROR:
-        vertical_pbm_mirror(image);
+    case VERTICAL_FLIP:
+        vertical_pbm_flip(image);
         break;
-    case HORIZONTAL_MIRROR:
-        horizontal_pbm_mirror(image);
+    case HORIZONTAL_FLIP:
+        horizontal_pbm_flip(image);
         break;
     }
 }

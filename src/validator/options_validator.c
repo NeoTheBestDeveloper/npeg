@@ -4,7 +4,6 @@
 
 #include "../core/alghoritms/alghoritms.h"
 #include "../utils/utils.h"
-#include "options_validator.h"
 
 static void _validate_input_path(const char *input_path) {
     if (input_path == NULL)
@@ -21,17 +20,17 @@ static void _validate_output_path(const char *output_path) {
         print_error("Error: no output path.\n", -1);
 }
 
-static void _validate_algorithm(const char *algoritm) {
-    if (algoritm == NULL)
+static void _validate_alghoritm(const char *alghoritm) {
+    if (alghoritm == NULL)
         print_error("Error: no alghoritm name.\n", -1);
 
-    if (get_alghoritm_type(algoritm) == -1)
+    if (get_alghoritm_type(alghoritm) == -1)
         print_error("Error: unknown alghoritm.\n", -1);
 }
 
 void validate_options_value(const char *input_path, const char *output_path,
-                            const char *alghorithm) {
+                            const char *alghoritm) {
     _validate_input_path(input_path);
     _validate_output_path(output_path);
-    _validate_algorithm(alghorithm);
+    _validate_alghoritm(alghoritm);
 }
