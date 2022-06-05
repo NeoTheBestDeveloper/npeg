@@ -5,4 +5,4 @@ enum alghoritms { VERTICAL_MIRROR, HORIZONTAL_MIRROR };
 
 enum alghoritms get_alghoritm_type(const char *alghoritm);
 
-#endif // OPTIONS_VALIDATOR_H
+#endif // ALGHORITMS_H

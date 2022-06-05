@@ -6,4 +6,4 @@
 void vertical_pbm_mirror(pbm_image *image);
 void horizontal_pbm_mirror(pbm_image *image);
 
-#endif
+#endif // PBM_MIRROR_H
