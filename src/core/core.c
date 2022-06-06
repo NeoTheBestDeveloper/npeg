@@ -4,7 +4,7 @@
 #include "../utils/utils.h"
 
 #include "./image_formats/image_formats.h"
-#include "./image_formats/pbm_image.h"
+#include "./image_formats/pbm.h"
 
 #define PROCESS_IMAGE(image_format)                                            \
     image_format##_image image =                                               \
@@ -19,17 +19,16 @@ static enum image_formats _parse_image_format(FILE *image_file) {
     fscanf(image_file, "%2s\n", magic_num);
     fseek(image_file, 0, SEEK_SET);
 
-    if (0 == strcmp(magic_num, "P1") || 0 == strcmp(magic_num, "P4")) {
+    if (0 == strcmp(magic_num, "P1") || 0 == strcmp(magic_num, "P4"))
         return PBM;
-    } else if (0 == strcmp(magic_num, "P2") || 0 == strcmp(magic_num, "P5")) {
+    else if (0 == strcmp(magic_num, "P2") || 0 == strcmp(magic_num, "P5"))
         return PGM;
-    } else if (0 == strcmp(magic_num, "P3") || 0 == strcmp(magic_num, "P6")) {
+    else if (0 == strcmp(magic_num, "P3") || 0 == strcmp(magic_num, "P6"))
         return PPM;
-    } else if (0 == strcmp(magic_num, "BM")) {
+    else if (0 == strcmp(magic_num, "BM"))
         return BMP;
-    } else {
+    else
         return UNKNOWN_FORMAT;
-    }
 }
 
 static enum image_encodings _parse_image_encoding(FILE *image_file) {
@@ -38,9 +37,8 @@ static enum image_encodings _parse_image_encoding(FILE *image_file) {
     fseek(image_file, 0, SEEK_SET);
 
     if (0 == strcmp(magic_num, "P1") || 0 == strcmp(magic_num, "P2") ||
-        0 == strcmp(magic_num, "P3")) {
+        0 == strcmp(magic_num, "P3"))
         return ASCII;
-    }
     return RAW;
 }
 

@@ -4,16 +4,15 @@
 #include <string.h>
 
 #include "../../utils/utils.h"
-#include "image_formats.h"
-#include "pbm_image.h"
-
 #include "../alghoritms/alghoritms.h"
+#include "image_formats.h"
+#include "pbm.h"
 
 #define MAGIC_NUM_LENGTH 2
 
 static void _read_header(pbm_image *image, FILE *image_file) {
     char buffer[2048];
-    image->comment_lines_count = 0;
+    image->comment_rows_count = 0;
 
     // Skip string with magic num (+ 1 - one whitespace symbol).
     fread(buffer, 1, MAGIC_NUM_LENGTH + 1, image_file);
@@ -21,21 +20,32 @@ static void _read_header(pbm_image *image, FILE *image_file) {
     // Read comment.
     while (fgetc(image_file) == '#') {
         fgets(buffer, sizeof(buffer), image_file);
-        image->comments =
-            (char **)realloc(image->comments, ++(image->comment_lines_count));
-        image->comments[image->comment_lines_count - 1] =
+        image->comment =
+            (char **)realloc(image->comment, ++(image->comment_rows_count));
+        image->comment[image->comment_rows_count - 1] =
             (char *)malloc(strlen(buffer) + 1);
-        strncpy(image->comments[image->comment_lines_count - 1], buffer,
+        strncpy(image->comment[image->comment_rows_count - 1], buffer,
                 strlen(buffer));
 
         if (feof(image_file))
             print_error("Error: couldn't read file.", -1);
     }
+
+    // Move cursor back, because we read one byte of image width before.
     fseek(image_file, -1, SEEK_CUR);
 
     size_t width, height;
-    fscanf(image_file, "%zu %zu\n", &width, &height);
+    fscanf(image_file, "%zu", &width);
+
+    // Skip whitespace symbol.
+    fgetc(image_file);
+
+    fscanf(image_file, "%zu", &height);
+
     image->channels[0] = create_u8_matrix(width, height);
+
+    // Skip whitespace symbol.
+    fgetc(image_file);
 }
 
 static void _read_raw_image_data(pbm_image *image, FILE *image_file) {
@@ -57,10 +67,12 @@ static void _read_ascii_image_data(pbm_image *image, FILE *image_file) {
     for (int i = 0; i < image->channels[0].height; i++) {
         for (int j = 0; j < image->channels[0].width; j++) {
             unsigned char byte;
-            while (isspace(byte = fgetc(image_file))) {
+
+            // Read bytes, while until read not whitespace symbol.
+            while (isspace(byte = fgetc(image_file)))
                 if (feof(image_file))
                     print_error("Error: couldn't read file.", -1);
-            }
+
             // Write current byte and convert it from ascii to number.
             image->channels[0].data[i][j] = byte - '0';
         }
@@ -75,24 +87,45 @@ static void _read_image_data(pbm_image *image, FILE *image_file,
         _read_ascii_image_data(image, image_file);
 }
 
+static void _dump_raw_data(pbm_image *image, FILE *fout) {
+    for (int i = 0; i < image->channels[0].height; i++)
+        for (int j = 0; j < image->channels[0].width; j += 8) {
+            unsigned char byte = 0;
+            for (int k = 0; k < 8; k++)
+                byte |= image->channels[0].data[i][j + k] << (7 - k);
+            fprintf(fout, "%c", byte);
+        }
+}
+
+static void _dump_ascii_data(pbm_image *image, FILE *fout) {
+    for (int i = 0; i < image->channels[0].height; i++)
+        for (int j = 0; j < image->channels[0].width; j++)
+            // Before putting pixel at the file, convert it from number to
+            // ascii.
+            fputc(image->channels[0].data[i][j] + '0', fout);
+}
+
 void dump_pbm_image(pbm_image *image, const char *path) {
-    FILE *fout = fopen(path, "wt");
+    char *mode = (image->encoding == RAW) ? "wb" : "wt";
+    char *magic_num = (image->encoding == RAW) ? "P4" : "P1";
+
+    FILE *fout = fopen(path, mode);
 
     // Write magic num.
-    fprintf(fout, "%s\n", "P1");
+    fprintf(fout, "%s\n", magic_num);
 
     // Write comments.
-    for (int i = 0; i < image->comment_lines_count; i++)
-        fprintf(fout, "#%s", image->comments[i]);
+    for (int i = 0; i < image->comment_rows_count; i++)
+        fprintf(fout, "#%s", image->comment[i]);
 
     // Write image size.
     fprintf(fout, "%zu %zu\n", image->channels[0].width,
             image->channels[0].height);
 
-    for (int i = 0; i < image->channels[0].height; i++)
-        for (int j = 0; j < image->channels[0].width; j++)
-            // Before putting pixel at the file convert it from number to ascii.
-            fputc(image->channels[0].data[i][j] + '0', fout);
+    if (image->encoding == RAW)
+        _dump_raw_data(image, fout);
+    else
+        _dump_ascii_data(image, fout);
 
     fclose(fout);
 }
@@ -101,7 +134,7 @@ pbm_image create_pbm_image(FILE *image_file, enum image_encodings encoding) {
     pbm_image image = {};
     image.encoding = encoding;
 
-    // Read width, height.
+    // Read width, height and comment from header.
     _read_header(&image, image_file);
 
     _read_image_data(&image, image_file, encoding);
@@ -113,9 +146,9 @@ void free_pbm_image(pbm_image *image) {
     free_u8_matrix(image->channels);
 
     // Free comment.
-    for (int i = 0; i < image->comment_lines_count; i++)
-        free(image->comments[i]);
-    free(image->comments);
+    for (int i = 0; i < image->comment_rows_count; i++)
+        free(image->comment[i]);
+    free(image->comment);
 }
 
 void process_pbm_image(pbm_image *image, const char *alghoritm) {

@@ -1,8 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "../../image_formats/pbm_image.h"
-#include "./pbm_filter.h"
+// #include "../../image_formats/pbm_image.h"
+// #include "./pbm_filter.h"
 
 // static void _get_neibhoods(unsigned char *neibghoods, unsigned char **matrix,
 //                            int y, int x, int filter_size) {

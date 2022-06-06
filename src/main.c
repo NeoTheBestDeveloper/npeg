@@ -25,7 +25,7 @@ char *parse_key_option_value(int key_option_position, int argc,
 
 void print_help() {
     printf("npeg %s\n"
-           "A command-line bitmap images converter.\n\n"
+           "A command-line bitmap images processor.\n\n"
            "Usage:\n\tnpeg -i <INPUT_PATH> -a <ALGHORITM> -o "
            "<OUTPUT_PATH>\n\n"
            "Options:\n\t"

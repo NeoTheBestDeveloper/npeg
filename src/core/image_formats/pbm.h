@@ -10,8 +10,8 @@
 
 typedef struct {
     u8_matrix channels[CHANNELS_COUNT];
-    char **comments;
-    int comment_lines_count;
+    char **comment;
+    int comment_rows_count;
     enum image_encodings encoding;
 } pbm_image;
 
