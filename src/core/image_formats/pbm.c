@@ -175,6 +175,8 @@ void process_pbm_image(pbm_image *image, const char *alghoritm) {
         break;
     case MED_FILTER_ALGHORITM:
         filter_image(image->channels, 3, MED_FILTER);
+    case GAUSSIAN_FILTER_ALGHORITM:
+        filter_image(image->channels, 3, GAUSSIAN_FILTER);
         break;
     }
 }

@@ -3,21 +3,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-float mult_vectors(Vector *vec1, Vector *vec2) {
-    float result = 0;
+double mult_vectors(Vector *vec1, Vector *vec2) {
+    double result = 0;
     for (size_t i = 0; i < vec1->size; i++)
         result += vec1->data[i] * vec2->data[i];
     return result;
 }
 
 Vector create_vector(size_t size) {
-    float *data = (float *)malloc(sizeof(float) * size);
+    double *data = (double *)malloc(sizeof(double) * size);
     Vector vec = {size, data};
     return vec;
 }
 
-float sum_vector(Vector *vec) {
-    float result = 0;
+double sum_vector(Vector *vec) {
+    double result = 0;
     // printf("sum vec: %f", result);
     for (size_t i = 0; i < vec->size; i++) {
         result += vec->data[i];
@@ -28,8 +28,8 @@ float sum_vector(Vector *vec) {
 }
 
 int _comp(const void *elem1, const void *elem2) {
-    int f = *((float *)elem1);
-    int s = *((float *)elem2);
+    int f = *((double *)elem1);
+    int s = *((double *)elem2);
     if (f > s)
         return 1;
     if (f < s)
@@ -38,7 +38,7 @@ int _comp(const void *elem1, const void *elem2) {
 }
 
 void sort_vector(Vector *vec) {
-    qsort(vec->data, vec->size, sizeof(float), _comp);
+    qsort(vec->data, vec->size, sizeof(double), _comp);
 }
 
 void free_vector(Vector *vec) { free(vec->data); }

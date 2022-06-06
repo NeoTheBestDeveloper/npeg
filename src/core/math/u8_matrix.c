@@ -93,5 +93,5 @@ void get_u8_area(u8_matrix *matrix, Vector *area, int center_x, int center_y,
     int area_top = 0;
     for (int i = center_y - radius; i < center_y + radius + 1; i++)
         for (int j = center_x - radius; j < center_x + radius + 1; j++)
-            area->data[area_top++] = (float)matrix->data[i][j];
+            area->data[area_top++] = (double)matrix->data[i][j];
 }

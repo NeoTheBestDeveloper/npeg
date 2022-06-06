@@ -17,6 +17,8 @@ enum alghoritms get_alghoritm_type(const char *alghoritm) {
         return BOX_FILTER_ALGHORITM;
     else if (0 == strcmp(alghoritm, "median_filter"))
         return MED_FILTER_ALGHORITM;
+    else if (0 == strcmp(alghoritm, "gaussian_filter"))
+        return GAUSSIAN_FILTER_ALGHORITM;
     else
         return -1;
 }

@@ -6,13 +6,13 @@
 
 typedef struct {
     size_t size;
-    float *data;
+    double *data;
 } Vector;
 
 Vector create_vector(size_t size);
 
-float mult_vectors(Vector *vec1, Vector *vec2);
-float sum_vector(Vector *vec);
+double mult_vectors(Vector *vec1, Vector *vec2);
+double sum_vector(Vector *vec);
 void sort_vector(Vector *vec);
 
 void free_vector(Vector *vec);
