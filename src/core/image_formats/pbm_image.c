@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,8 +8,6 @@
 #include "pbm_image.h"
 
 #include "../alghoritms/alghoritms.h"
-#include "../alghoritms/flip/pbm_flip.h"
-#include "../alghoritms/rotate/pbm_rotate.h"
 
 #define MAGIC_NUM_LENGTH 2
 
@@ -34,39 +33,36 @@ static void _read_header(pbm_image *image, FILE *image_file) {
     }
     fseek(image_file, -1, SEEK_CUR);
 
-    fscanf(image_file, "%d %d\n", &image->width, &image->height);
+    size_t width, height;
+    fscanf(image_file, "%zu %zu\n", &width, &height);
+    image->channels[0] = create_u8_matrix(width, height);
 }
 
 static void _read_raw_image_data(pbm_image *image, FILE *image_file) {
-    image->image_data =
-        (unsigned char **)malloc(sizeof(unsigned char *) * image->height);
-    for (int i = 0; i < image->height; i++) {
+    for (int i = 0; i < image->channels[0].height; i++) {
         if (feof(image_file))
             print_error("Error: couldn't read file.", -1);
 
-        image->image_data[i] = (unsigned char *)malloc(image->width);
         unsigned char byte;
-        for (int j = 0; j < image->width; j++) {
+        for (int j = 0; j < image->channels[0].width; j++) {
             if (j % 8 == 0)
                 byte = fgetc(image_file);
             // Read byte by bits.
-            image->image_data[i][j] = (byte >> (7 - j % 8) & 1) + '0';
+            image->channels[0].data[i][j] = (byte >> (7 - j % 8) & 1);
         }
     }
 }
 
 static void _read_ascii_image_data(pbm_image *image, FILE *image_file) {
-    image->image_data =
-        (unsigned char **)malloc(sizeof(unsigned char *) * image->height);
-    for (int i = 0; i < image->height; i++) {
-        image->image_data[i] = (unsigned char *)malloc(image->width);
-        for (int j = 0; j < image->width; j++) {
+    for (int i = 0; i < image->channels[0].height; i++) {
+        for (int j = 0; j < image->channels[0].width; j++) {
             unsigned char byte;
             while (isspace(byte = fgetc(image_file))) {
                 if (feof(image_file))
                     print_error("Error: couldn't read file.", -1);
             }
-            image->image_data[i][j] = byte;
+            // Write current byte and convert it from ascii to number.
+            image->channels[0].data[i][j] = byte - '0';
         }
     }
 }
@@ -90,20 +86,22 @@ void dump_pbm_image(pbm_image *image, const char *path) {
         fprintf(fout, "#%s", image->comments[i]);
 
     // Write image size.
-    fprintf(fout, "%d %d\n", image->width, image->height);
+    fprintf(fout, "%zu %zu\n", image->channels[0].width,
+            image->channels[0].height);
 
-    for (int i = 0; i < image->height; i++)
-        fwrite(image->image_data[i], 1, image->width, fout);
+    for (int i = 0; i < image->channels[0].height; i++)
+        for (int j = 0; j < image->channels[0].width; j++)
+            // Before putting pixel at the file convert it from number to ascii.
+            fputc(image->channels[0].data[i][j] + '0', fout);
 
     fclose(fout);
 }
 
 pbm_image create_pbm_image(FILE *image_file, enum image_encodings encoding) {
-    pbm_image image = {
-        .encoding = encoding,
-    };
+    pbm_image image = {};
+    image.encoding = encoding;
 
-    // Read width, height, calc bytes width.
+    // Read width, height.
     _read_header(&image, image_file);
 
     _read_image_data(&image, image_file, encoding);
@@ -112,9 +110,7 @@ pbm_image create_pbm_image(FILE *image_file, enum image_encodings encoding) {
 
 void free_pbm_image(pbm_image *image) {
     // Free image data.
-    for (int i = 0; i < image->height; i++)
-        free(image->image_data[i]);
-    free(image->image_data);
+    free_u8_matrix(image->channels);
 
     // Free comment.
     for (int i = 0; i < image->comment_lines_count; i++)
@@ -125,19 +121,19 @@ void free_pbm_image(pbm_image *image) {
 void process_pbm_image(pbm_image *image, const char *alghoritm) {
     switch (get_alghoritm_type(alghoritm)) {
     case VERTICAL_FLIP:
-        vertical_pbm_flip(image);
+        flip_u8_matrix(image->channels, VERTICAL);
         break;
     case HORIZONTAL_FLIP:
-        horizontal_pbm_flip(image);
+        flip_u8_matrix(image->channels, HORIZONTAL);
         break;
     case ROTATE_90:
-        pbm_rotate(image, 90);
+        rotate_u8_matrix(image->channels, 90);
         break;
     case ROTATE_180:
-        pbm_rotate(image, 180);
+        rotate_u8_matrix(image->channels, 180);
         break;
     case ROTATE_270:
-        pbm_rotate(image, 270);
+        rotate_u8_matrix(image->channels, 270);
         break;
     }
 }
