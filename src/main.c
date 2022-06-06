@@ -39,7 +39,9 @@ void print_help() {
            "horizontal_mirror\tFlip image by x axe.\n\t"
            "rotate90\t\tRotate image by 90 degrees.\n\t"
            "rotate180\t\tRotate image by 180 degrees.\n\t"
-           "rotate270\t\tRotate image by 270 degrees.\n\n"
+           "rotate270\t\tRotate image by 270 degrees.\n\t"
+           "box_filter\t\tFilter image with box filter.\n\t"
+           "median_filter\t\tFilter image with median filter.\n\n"
            "Author:\n\tnpeg was written by Neo <kiankasey91@gmail.com>.\n",
            VERSION);
     exit(0);

@@ -13,6 +13,10 @@ enum alghoritms get_alghoritm_type(const char *alghoritm) {
         return ROTATE_180;
     else if (0 == strcmp(alghoritm, "rotate270"))
         return ROTATE_270;
+    else if (0 == strcmp(alghoritm, "box_filter"))
+        return BOX_FILTER_ALGHORITM;
+    else if (0 == strcmp(alghoritm, "median_filter"))
+        return MED_FILTER_ALGHORITM;
     else
         return -1;
 }

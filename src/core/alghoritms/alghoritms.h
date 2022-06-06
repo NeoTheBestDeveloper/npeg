@@ -6,7 +6,9 @@ enum alghoritms {
     HORIZONTAL_FLIP,
     ROTATE_90,
     ROTATE_180,
-    ROTATE_270
+    ROTATE_270,
+    BOX_FILTER_ALGHORITM,
+    MED_FILTER_ALGHORITM,
 };
 
 enum alghoritms get_alghoritm_type(const char *alghoritm);

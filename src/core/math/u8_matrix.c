@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "matrix.h"
@@ -85,4 +86,12 @@ void rotate_u8_matrix(u8_matrix *matrix, int degrees) {
     for (size_t i = 0; i < old_height; i++)
         free(old_data[i]);
     free(old_data);
+}
+
+void get_u8_area(u8_matrix *matrix, Vector *area, int center_x, int center_y,
+                 int radius) {
+    int area_top = 0;
+    for (int i = center_y - radius; i < center_y + radius + 1; i++)
+        for (int j = center_x - radius; j < center_x + radius + 1; j++)
+            area->data[area_top++] = (float)matrix->data[i][j];
 }

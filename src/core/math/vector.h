@@ -9,6 +9,12 @@ typedef struct {
     float *data;
 } Vector;
 
-float mult_vectors(Vector vector1, Vector vector2);
+Vector create_vector(size_t size);
+
+float mult_vectors(Vector *vec1, Vector *vec2);
+float sum_vector(Vector *vec);
+void sort_vector(Vector *vec);
+
+void free_vector(Vector *vec);
 
 #endif // VECTOR_H

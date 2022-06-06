@@ -4,9 +4,11 @@
 #include <string.h>
 
 #include "../../utils/utils.h"
-#include "../alghoritms/alghoritms.h"
 #include "image_formats.h"
 #include "pbm.h"
+
+#include "../alghoritms/alghoritms.h"
+#include "../alghoritms/filter.h"
 
 #define MAGIC_NUM_LENGTH 2
 
@@ -167,6 +169,12 @@ void process_pbm_image(pbm_image *image, const char *alghoritm) {
         break;
     case ROTATE_270:
         rotate_u8_matrix(image->channels, 270);
+        break;
+    case BOX_FILTER_ALGHORITM:
+        filter_image(image->channels, 3, BOX_FILTER);
+        break;
+    case MED_FILTER_ALGHORITM:
+        filter_image(image->channels, 3, MED_FILTER);
         break;
     }
 }
