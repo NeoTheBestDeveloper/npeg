@@ -10,6 +10,7 @@ enum alghoritms {
     BOX_FILTER_ALGHORITM,
     MED_FILTER_ALGHORITM,
     GAUSSIAN_FILTER_ALGHORITM,
+    UNSHARP_FILTER_ALGHORITM,
 };
 
 enum alghoritms get_alghoritm_type(const char *alghoritm);

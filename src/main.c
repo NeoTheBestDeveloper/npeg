@@ -41,7 +41,9 @@ void print_help() {
            "rotate180\t\tRotate image by 180 degrees.\n\t"
            "rotate270\t\tRotate image by 270 degrees.\n\t"
            "box_filter\t\tFilter image with box filter.\n\t"
-           "median_filter\t\tFilter image with median filter.\n\n"
+           "median_filter\t\tFilter image with median filter.\n\t"
+           "gaussian_filter\t\tFilter image with gaussian filter.\n\t"
+           "unsharp_filter\t\tFilter image with unsharp filter.\n\n"
            "Author:\n\tnpeg was written by Neo <kiankasey91@gmail.com>.\n",
            VERSION);
     exit(0);

@@ -18,12 +18,8 @@ Vector create_vector(size_t size) {
 
 double sum_vector(Vector *vec) {
     double result = 0;
-    // printf("sum vec: %f", result);
-    for (size_t i = 0; i < vec->size; i++) {
+    for (size_t i = 0; i < vec->size; i++)
         result += vec->data[i];
-        // printf("sum vec: %f\n", result);
-        // printf("sum vec element: %f\n", vec->data[i]);
-    }
     return result;
 }
 

@@ -178,5 +178,8 @@ void process_pbm_image(pbm_image *image, const char *alghoritm) {
     case GAUSSIAN_FILTER_ALGHORITM:
         filter_image(image->channels, 3, GAUSSIAN_FILTER);
         break;
+    case UNSHARP_FILTER_ALGHORITM:
+        filter_image(image->channels, 5, UNSHARP_FILTER);
+        break;
     }
 }
