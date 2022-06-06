@@ -35,8 +35,11 @@ void print_help() {
            "-h, --help\t\t\t\tPrint help information.\n\n"
            "Aviable formats:\n\tPBM\n\n"
            "Aviable algorithms:\n\t"
-           "vertical_flip\t\tFlip image by y axe.\n\n"
-           // "horizontal_mirror\tFlip image by x axe.\n"
+           "vertical_flip\t\tFlip image by y axe.\n\t"
+           "horizontal_mirror\tFlip image by x axe.\n\t"
+           "rotate90\t\tRotate image by 90 degrees.\n\t"
+           "rotate180\t\tRotate image by 180 degrees.\n\t"
+           "rotate270\t\tRotate image by 270 degrees.\n\n"
            "Author:\n\tnpeg was written by Neo <kiankasey91@gmail.com>.\n",
            VERSION);
     exit(0);

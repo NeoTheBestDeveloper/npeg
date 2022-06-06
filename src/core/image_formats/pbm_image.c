@@ -49,6 +49,7 @@ static void _read_raw_image_data(pbm_image *image, FILE *image_file) {
         for (int j = 0; j < image->width; j++) {
             if (j % 8 == 0)
                 byte = fgetc(image_file);
+            // Read byte by bits.
             image->image_data[i][j] = (byte >> (7 - j % 8) & 1) + '0';
         }
     }
@@ -129,14 +130,14 @@ void process_pbm_image(pbm_image *image, const char *alghoritm) {
     case HORIZONTAL_FLIP:
         horizontal_pbm_flip(image);
         break;
-        // case ROTATE_90:
-        //     pbm_rotate(image, 90);
-        //     break;
-        // case ROTATE_180:
-        //     pbm_rotate(image, 180);
-        //     break;
-        // case ROTATE_270:
-        //     pbm_rotate(image, 270);
-        //     break;
+    case ROTATE_90:
+        pbm_rotate(image, 90);
+        break;
+    case ROTATE_180:
+        pbm_rotate(image, 180);
+        break;
+    case ROTATE_270:
+        pbm_rotate(image, 270);
+        break;
     }
 }
