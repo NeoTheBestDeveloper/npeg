@@ -31,86 +31,65 @@ static void _gen_unsharp_filter(Vector *filter, int filter_size, double dev) {
                 exp(-(pow(j, 2.0) + pow(i, 2.0)) / (2.0 * pow(dev, 2.0)));
 }
 
-static void _unsharp_filter(u8_matrix *matrix, int filter_size) {
+static void _filter_image(Matrix *matrix, int filter_size,
+                          void gen_filter(Vector *filter_, int filter_size,
+                                          double dev)) {
     int filter_padding = (filter_size - 1) / 2;
     int area_size = filter_size * filter_size;
 
     Vector area = create_vector(area_size);
 
-    Vector unsharp_filter = create_vector(area_size);
-    _gen_unsharp_filter(&unsharp_filter, filter_size, 1.0);
+    Vector filter = create_vector(area_size);
+    gen_filter(&filter, filter_size, 1.0);
 
-    uint_fast8_t **new_data =
-        (uint_fast8_t **)malloc(matrix->height * sizeof(uint_fast8_t *));
+    uint_fast16_t **new_data =
+        (uint_fast16_t **)malloc(matrix->height * sizeof(uint_fast16_t *));
     for (size_t i = 0; i < matrix->height; i++)
         new_data[i] =
-            (uint_fast8_t *)malloc(sizeof(uint_fast8_t) * matrix->width);
+            (uint_fast16_t *)malloc(sizeof(uint_fast16_t) * matrix->width);
 
     for (int i = filter_padding; i < matrix->height - filter_padding; i++) {
         for (int j = filter_padding; j < matrix->width - filter_padding; j++) {
-            get_u8_area(matrix, &area, j, i, filter_padding);
-            new_data[i][j] = round(mult_vectors(&unsharp_filter, &area));
+            get_area(matrix, &area, j, i, filter_padding);
+            new_data[i][j] = round(mult_vectors(&filter, &area));
         }
     }
 
     free_vector(&area);
-    free_vector(&unsharp_filter);
+    free_vector(&filter);
 
-    // Free old data.
-    for (size_t i = 0; i < matrix->height; i++)
-        free(matrix->data[i]);
-    free(matrix->data);
-
-    matrix->data = new_data;
-}
-
-static void _gaussian_filter(u8_matrix *matrix, int filter_size) {
-    int filter_padding = (filter_size - 1) / 2;
-    int area_size = filter_size * filter_size;
-
-    Vector area = create_vector(area_size);
-
-    Vector gaussian_filter = create_vector(area_size);
-    _gen_gaussian_filter(&gaussian_filter, filter_size, 1.0);
-
-    uint_fast8_t **new_data =
-        (uint_fast8_t **)malloc(matrix->height * sizeof(uint_fast8_t *));
-    for (size_t i = 0; i < matrix->height; i++)
-        new_data[i] =
-            (uint_fast8_t *)malloc(sizeof(uint_fast8_t) * matrix->width);
-
-    for (int i = filter_padding; i < matrix->height - filter_padding; i++) {
-        for (int j = filter_padding; j < matrix->width - filter_padding; j++) {
-            get_u8_area(matrix, &area, j, i, filter_padding);
-            new_data[i][j] = round(mult_vectors(&gaussian_filter, &area));
-        }
+    uint_fast16_t **old_data = matrix->data;
+    if (gen_filter == _gen_unsharp_filter) {
+        for (size_t i = 0; i < matrix->height; i++)
+            for (size_t j = 0; j < matrix->width; j++)
+                matrix->data[i][j] -= new_data[i][j];
+        // Free old data.
+        for (size_t i = 0; i < matrix->height; i++)
+            free(new_data[i]);
+        free(new_data);
+    } else {
+        matrix->data = new_data;
+        // Free old data.
+        for (size_t i = 0; i < matrix->height; i++)
+            free(old_data[i]);
+        free(old_data);
     }
-
-    free_vector(&area);
-    free_vector(&gaussian_filter);
-
-    // Free old data.
-    for (size_t i = 0; i < matrix->height; i++)
-        free(matrix->data[i]);
-    free(matrix->data);
-
-    matrix->data = new_data;
 }
 
-static void _box_filter(u8_matrix *matrix, int filter_size) {
+static void _box_filter(Matrix *matrix, int filter_size) {
     int filter_padding = (filter_size - 1) / 2;
     double area_size = filter_size * filter_size;
     Vector area = create_vector(area_size);
 
-    uint_fast8_t **new_data =
-        (uint_fast8_t **)malloc(matrix->height * sizeof(uint_fast8_t *));
+    uint_fast16_t **new_data =
+        (uint_fast16_t **)malloc(matrix->height * sizeof(uint_fast16_t *));
     for (size_t i = 0; i < matrix->height; i++)
         new_data[i] =
-            (uint_fast8_t *)malloc(sizeof(uint_fast8_t) * matrix->width);
+            (uint_fast16_t *)malloc(sizeof(uint_fast16_t) * matrix->width);
 
     for (int i = filter_padding; i < matrix->height - filter_padding; i++) {
         for (int j = filter_padding; j < matrix->width - filter_padding; j++) {
-            get_u8_area(matrix, &area, j, i, filter_padding);
+            get_area(matrix, &area, j, i, filter_padding);
             new_data[i][j] = round(sum_vector(&area) / area_size);
         }
     }
@@ -125,20 +104,20 @@ static void _box_filter(u8_matrix *matrix, int filter_size) {
     matrix->data = new_data;
 }
 
-static void _med_filter(u8_matrix *matrix, int filter_size) {
+static void _med_filter(Matrix *matrix, int filter_size) {
     int filter_padding = (filter_size - 1) / 2;
     int area_size = filter_size * filter_size;
     Vector area = create_vector(area_size);
 
-    uint_fast8_t **new_data =
-        (uint_fast8_t **)malloc(matrix->height * sizeof(uint_fast8_t *));
+    uint_fast16_t **new_data =
+        (uint_fast16_t **)malloc(matrix->height * sizeof(uint_fast16_t *));
     for (size_t i = 0; i < matrix->height; i++)
         new_data[i] =
-            (uint_fast8_t *)malloc(sizeof(uint_fast8_t) * matrix->width);
+            (uint_fast16_t *)malloc(sizeof(uint_fast16_t) * matrix->width);
 
     for (int i = filter_padding; i < matrix->height - filter_padding; i++)
         for (int j = filter_padding; j < matrix->width - filter_padding; j++) {
-            get_u8_area(matrix, &area, j, i, filter_padding);
+            get_area(matrix, &area, j, i, filter_padding);
             sort_vector(&area);
             new_data[i][j] = area.data[area.size / 2 + 1];
         }
@@ -153,7 +132,7 @@ static void _med_filter(u8_matrix *matrix, int filter_size) {
     matrix->data = new_data;
 }
 
-void filter_image(u8_matrix *matrix, int filter_size, enum filters filter) {
+void filter_image(Matrix *matrix, int filter_size, enum filters filter) {
     switch (filter) {
     case BOX_FILTER:
         _box_filter(matrix, filter_size);
@@ -162,10 +141,10 @@ void filter_image(u8_matrix *matrix, int filter_size, enum filters filter) {
         _med_filter(matrix, filter_size);
         break;
     case GAUSSIAN_FILTER:
-        _gaussian_filter(matrix, filter_size);
+        _filter_image(matrix, filter_size, _gen_gaussian_filter);
         break;
     case UNSHARP_FILTER:
-        _unsharp_filter(matrix, filter_size);
+        _filter_image(matrix, filter_size, _gen_unsharp_filter);
         break;
     }
 }

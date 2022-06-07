@@ -5,6 +5,7 @@
 
 #include "./image_formats/image_formats.h"
 #include "./image_formats/pbm.h"
+#include "./image_formats/pgm.h"
 
 #define PROCESS_IMAGE(image_format)                                            \
     image_format##_image image =                                               \
@@ -53,7 +54,10 @@ void process_image(const char *input_path, const char *output_path,
         PROCESS_IMAGE(pbm)
         break;
     }
-    case PGM:
+    case PGM: {
+        PROCESS_IMAGE(pgm)
+        break;
+    }
     case PPM:
     case BMP:
         print_error("Error: current input file format is not supported yet.\n",

@@ -9,7 +9,7 @@
 #define CHANNELS_COUNT 1
 
 typedef struct {
-    u8_matrix channels[CHANNELS_COUNT];
+    Matrix channels[CHANNELS_COUNT];
     char **comment;
     int comment_rows_count;
     enum image_encodings encoding;

@@ -5,6 +5,6 @@
 
 enum filters { BOX_FILTER, MED_FILTER, GAUSSIAN_FILTER, UNSHARP_FILTER };
 
-void filter_image(u8_matrix *matrix, int filter_size, enum filters filter);
+void filter_image(Matrix *matrix, int filter_size, enum filters filter);
 
 #endif // FILTER_H
