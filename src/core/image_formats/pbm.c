@@ -134,6 +134,7 @@ void dump_pbm_image(pbm_image *image, const char *path) {
 pbm_image create_pbm_image(FILE *image_file, enum image_encodings encoding) {
     pbm_image image = {};
     image.encoding = encoding;
+    image.channels_count = CHANNELS_COUNT;
 
     // Read width, height and comment from header.
     _read_header(&image, image_file);
@@ -150,35 +151,4 @@ void free_pbm_image(pbm_image *image) {
     for (int i = 0; i < image->comment_rows_count; i++)
         free(image->comment[i]);
     free(image->comment);
-}
-
-void process_pbm_image(pbm_image *image, const char *alghoritm) {
-    switch (get_alghoritm_type(alghoritm)) {
-    case VERTICAL_FLIP:
-        flip_matrix(image->channels, VERTICAL);
-        break;
-    case HORIZONTAL_FLIP:
-        flip_matrix(image->channels, HORIZONTAL);
-        break;
-    case ROTATE_90:
-        rotate_matrix(image->channels, 90);
-        break;
-    case ROTATE_180:
-        rotate_matrix(image->channels, 180);
-        break;
-    case ROTATE_270:
-        rotate_matrix(image->channels, 270);
-        break;
-    case BOX_FILTER_ALGHORITM:
-        filter_image(image->channels, 3, BOX_FILTER);
-        break;
-    case MED_FILTER_ALGHORITM:
-        filter_image(image->channels, 3, MED_FILTER);
-    case GAUSSIAN_FILTER_ALGHORITM:
-        filter_image(image->channels, 3, GAUSSIAN_FILTER);
-        break;
-    case UNSHARP_FILTER_ALGHORITM:
-        filter_image(image->channels, 3, UNSHARP_FILTER);
-        break;
-    }
 }

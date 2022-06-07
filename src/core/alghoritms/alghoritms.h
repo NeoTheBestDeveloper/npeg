@@ -1,6 +1,9 @@
 #ifndef ALGHORITMS_H
 #define ALGHORITMS_H
 
+#include "../math/matrix.h"
+#include "../options.h"
+
 enum alghoritms {
     VERTICAL_FLIP,
     HORIZONTAL_FLIP,
@@ -14,5 +17,6 @@ enum alghoritms {
 };
 
 enum alghoritms get_alghoritm_type(const char *alghoritm);
+void process_image(Matrix *channels, int channels_count, Options *options);
 
 #endif // ALGHORITMS_H

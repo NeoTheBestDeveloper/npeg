@@ -3,16 +3,17 @@
 
 #include "../utils/utils.h"
 
+#include "./alghoritms/alghoritms.h"
 #include "./image_formats/image_formats.h"
 #include "./image_formats/pbm.h"
 #include "./image_formats/pgm.h"
+#include "options.h"
 
 #define PROCESS_IMAGE(image_format)                                            \
     image_format##_image image =                                               \
         create_##image_format##_image(image_file, image_encoding);             \
-    fclose(image_file);                                                        \
-    process_##image_format##_image(&image, alghoritm);                         \
-    dump_##image_format##_image(&image, output_path);                          \
+    process_image(image.channels, image.channels_count, options);              \
+    dump_##image_format##_image(&image, options->output_path);                 \
     free_##image_format##_image(&image);
 
 static enum image_formats _parse_image_format(FILE *image_file) {
@@ -43,9 +44,8 @@ static enum image_encodings _parse_image_encoding(FILE *image_file) {
     return RAW;
 }
 
-void process_image(const char *input_path, const char *output_path,
-                   const char *alghoritm) {
-    FILE *image_file = fopen(input_path, "rb");
+void handle_image(Options *options) {
+    FILE *image_file = fopen(options->input_path, "rb");
     enum image_formats image_format = _parse_image_format(image_file);
     enum image_encodings image_encoding = _parse_image_encoding(image_file);
 
@@ -67,4 +67,6 @@ void process_image(const char *input_path, const char *output_path,
         print_error("Error: unknown input file format.\n", -1);
         break;
     }
+
+    fclose(image_file);
 }

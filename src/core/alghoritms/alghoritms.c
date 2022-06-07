@@ -1,6 +1,11 @@
+#include <stdlib.h>
 #include <string.h>
 
 #include "alghoritms.h"
+#include "filter.h"
+
+#include "../math/matrix.h"
+#include "../options.h"
 
 enum alghoritms get_alghoritm_type(const char *alghoritm) {
     if (0 == strcmp(alghoritm, "vertical_flip"))
@@ -23,4 +28,39 @@ enum alghoritms get_alghoritm_type(const char *alghoritm) {
         return UNSHARP_FILTER_ALGHORITM;
     else
         return -1;
+}
+
+void process_image(Matrix *channels, int channels_count, Options *options) {
+    int filter_size = atoi(options->filter_size);
+    float sigma = atof(options->sigma);
+
+    for (int i = 0; i < channels_count; i++)
+        switch (get_alghoritm_type(options->alghoritm)) {
+        case VERTICAL_FLIP:
+            flip_matrix(channels + i, VERTICAL);
+            break;
+        case HORIZONTAL_FLIP:
+            flip_matrix(channels + i, HORIZONTAL);
+            break;
+        case ROTATE_90:
+            rotate_matrix(channels + i, 90);
+            break;
+        case ROTATE_180:
+            rotate_matrix(channels + i, 180);
+            break;
+        case ROTATE_270:
+            rotate_matrix(channels + i, 270);
+            break;
+        case BOX_FILTER_ALGHORITM:
+            filter_image(channels + i, filter_size, BOX_FILTER, sigma);
+            break;
+        case MED_FILTER_ALGHORITM:
+            filter_image(channels + i, filter_size, MED_FILTER, sigma);
+        case GAUSSIAN_FILTER_ALGHORITM:
+            filter_image(channels + i, filter_size, GAUSSIAN_FILTER, sigma);
+            break;
+        case UNSHARP_FILTER_ALGHORITM:
+            filter_image(channels + i, filter_size, UNSHARP_FILTER, sigma);
+            break;
+        }
 }

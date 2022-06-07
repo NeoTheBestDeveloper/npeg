@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <unistd.h>
 
 #include "../core/alghoritms/alghoritms.h"
@@ -26,9 +27,28 @@ static void _validate_alghoritm(const char *alghoritm) {
         print_error("Error: unknown alghoritm.\n", -1);
 }
 
-void validate_options_value(const char *input_path, const char *output_path,
-                            const char *alghoritm) {
-    _validate_input_path(input_path);
-    _validate_output_path(output_path);
-    _validate_alghoritm(alghoritm);
+static void _validate_sigma(char *sigma) {
+    float buffer;
+    if (sscanf(sigma, "%f", &buffer) != 1)
+        print_error("Error: sigma must be a number.\n", -1);
+    if (buffer < 0.0)
+        print_error("Error: sigma must be greater then zero.\n", -1);
+}
+
+static void _validate_filter_size(char *filter_size) {
+    int buffer;
+    if (sscanf(filter_size, "%d", &buffer) != 1)
+        print_error("Error: filter size must be a number.\n", -1);
+    if (buffer < 3)
+        print_error("Error: filter size must be greater-equal then 3.\n", -1);
+    if (buffer % 2 == 0)
+        print_error("Error: filter size must be odd.\n", -1);
+}
+
+void validate_options(Options *options) {
+    _validate_input_path(options->input_path);
+    _validate_output_path(options->output_path);
+    _validate_alghoritm(options->alghoritm);
+    _validate_sigma(options->sigma);
+    _validate_filter_size(options->filter_size);
 }

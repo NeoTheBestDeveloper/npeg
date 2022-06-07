@@ -31,7 +31,7 @@ static void _gen_unsharp_filter(Vector *filter, int filter_size, double dev) {
                 exp(-(pow(j, 2.0) + pow(i, 2.0)) / (2.0 * pow(dev, 2.0)));
 }
 
-static void _filter_image(Matrix *matrix, int filter_size,
+static void _filter_image(Matrix *matrix, int filter_size, float sigma,
                           void gen_filter(Vector *filter_, int filter_size,
                                           double dev)) {
     int filter_padding = (filter_size - 1) / 2;
@@ -132,7 +132,8 @@ static void _med_filter(Matrix *matrix, int filter_size) {
     matrix->data = new_data;
 }
 
-void filter_image(Matrix *matrix, int filter_size, enum filters filter) {
+void filter_image(Matrix *matrix, int filter_size, enum filters filter,
+                  float sigma) {
     switch (filter) {
     case BOX_FILTER:
         _box_filter(matrix, filter_size);
@@ -141,10 +142,10 @@ void filter_image(Matrix *matrix, int filter_size, enum filters filter) {
         _med_filter(matrix, filter_size);
         break;
     case GAUSSIAN_FILTER:
-        _filter_image(matrix, filter_size, _gen_gaussian_filter);
+        _filter_image(matrix, filter_size, sigma, _gen_gaussian_filter);
         break;
     case UNSHARP_FILTER:
-        _filter_image(matrix, filter_size, _gen_unsharp_filter);
+        _filter_image(matrix, filter_size, sigma, _gen_unsharp_filter);
         break;
     }
 }
