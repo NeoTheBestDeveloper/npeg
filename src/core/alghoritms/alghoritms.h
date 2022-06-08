@@ -17,6 +17,7 @@ enum alghoritms {
 };
 
 enum alghoritms get_alghoritm_type(const char *alghoritm);
-void process_image(Matrix *channels, int channels_count, Options *options);
+void process_image(void *channels, int channels_count, int max_color_value,
+                   Options *options);
 
 #endif // ALGHORITMS_H
