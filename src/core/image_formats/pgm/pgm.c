@@ -72,8 +72,9 @@ static void _dump_raw_data(pgm_image *image, FILE *fout) {
 
 static void _dump_ascii_data(pgm_image *image, FILE *fout) {
     for (int i = 0; i < image->channels->height; i++)
-        for (int j = 0; j < image->channels->width; j++)
-            fprintf(fout, "%u ", image->channels[0].data[i][j]);
+        for (int j = 0; j < image->channels->width; j++) {
+            fprintf(fout, "%d ", image->channels[0].data[i][j]);
+        }
 }
 
 void dump_pgm_image(pgm_image *image, const char *path) {

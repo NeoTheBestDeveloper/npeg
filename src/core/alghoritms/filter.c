@@ -87,14 +87,15 @@ void filter_image(Matrix *matrix, int max_color_value, int filter_size,
     for (int i = filter_padding; i < matrix->height - filter_padding; i++) {
         for (int j = filter_padding; j < matrix->width - filter_padding; j++) {
             get_area(matrix, area, j, i, filter_padding);
+            if (filter == MED_FILTER) {
+                sort_vector(area);
+                new_data[i][j] = (int32_t)area->data[area->size / 2 + 1];
+            }
             if (filter == BOX_FILTER)
                 new_data[i][j] = round(sum_vector(area) / (double)area->size);
-            else if (filter == MED_FILTER) {
-                sort_vector(area);
-                new_data[i][j] = area->data[area->size / 2 + 1];
-            } else if (filter == GAUSSIAN_FILTER)
+            if (filter == GAUSSIAN_FILTER)
                 new_data[i][j] = round(mult_vectors(kernel, area));
-            else if (filter == UNSHARP_FILTER)
+            if (filter == UNSHARP_FILTER)
                 new_data[i][j] =
                     round((double)new_data[i][j] - mult_vectors(kernel, area));
             printf("%d ", new_data[i][j]);
