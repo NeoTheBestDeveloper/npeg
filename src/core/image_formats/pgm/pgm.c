@@ -43,7 +43,7 @@ static void _read_raw_image_data(pgm_image *image, FILE *image_file) {
     for (int i = 0; i < image->channels->height; i++)
         for (int j = 0; j < image->channels->width; j++)
             if (image->max_color_value > 255)
-                fscanf(image_file, "%lu", image->channels[0].data[i] + j);
+                fscanf(image_file, "%d", image->channels[0].data[i] + j);
             else
                 fscanf(image_file, "%c", image->channels[0].data[i] + j);
 }
@@ -51,7 +51,7 @@ static void _read_raw_image_data(pgm_image *image, FILE *image_file) {
 static void _read_ascii_image_data(pgm_image *image, FILE *image_file) {
     for (int i = 0; i < image->channels->height; i++)
         for (int j = 0; j < image->channels->width; j++)
-            fscanf(image_file, "%lu", image->channels[0].data[i] + j);
+            fscanf(image_file, "%d", image->channels[0].data[i] + j);
 }
 
 static void _read_image_data(pgm_image *image, FILE *image_file) {
@@ -65,7 +65,7 @@ static void _dump_raw_data(pgm_image *image, FILE *fout) {
     for (int i = 0; i < image->channels->height; i++)
         for (int j = 0; j < image->channels->width; j++)
             if (image->max_color_value > 255)
-                fprintf(fout, "%lu", image->channels[0].data[i][j]);
+                fprintf(fout, "%d", image->channels[0].data[i][j]);
             else
                 fprintf(fout, "%c", image->channels[0].data[i][j]);
 }
@@ -73,7 +73,7 @@ static void _dump_raw_data(pgm_image *image, FILE *fout) {
 static void _dump_ascii_data(pgm_image *image, FILE *fout) {
     for (int i = 0; i < image->channels->height; i++)
         for (int j = 0; j < image->channels->width; j++)
-            fprintf(fout, "%lu ", image->channels[0].data[i][j]);
+            fprintf(fout, "%u ", image->channels[0].data[i][j]);
 }
 
 void dump_pgm_image(pgm_image *image, const char *path) {

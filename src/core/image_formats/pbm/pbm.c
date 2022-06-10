@@ -93,7 +93,7 @@ static void _dump_raw_data(pbm_image *image, FILE *fout) {
 static void _dump_ascii_data(pbm_image *image, FILE *fout) {
     for (int i = 0; i < image->channels->height; i++)
         for (int j = 0; j < image->channels->width; j++)
-            fprintf(fout, "%lu", image->channels[0].data[i][j]);
+            fprintf(fout, "%hu", image->channels[0].data[i][j]);
 }
 
 pbm_image create_pbm_image(FILE *image_file) {

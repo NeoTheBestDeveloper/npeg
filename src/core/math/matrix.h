@@ -1,13 +1,15 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <stdint.h>
+
 #include "vector.h"
 
 enum directions { VERTICAL, HORIZONTAL };
 
 typedef struct {
     size_t width, height;
-    uint_fast16_t **data;
+    int32_t **data;
 } Matrix;
 
 Matrix create_matrix(size_t width, size_t height);

@@ -28,8 +28,8 @@ static void _validate_alghoritm(const char *alghoritm) {
 }
 
 static void _validate_sigma(char *sigma) {
-    float buffer;
-    if (sscanf(sigma, "%f", &buffer) != 1)
+    double buffer;
+    if (sscanf(sigma, "%lf", &buffer) != 1)
         print_error("Error: sigma must be a number.\n", -1);
     if (buffer < 0.0)
         print_error("Error: sigma must be greater then zero.\n", -1);

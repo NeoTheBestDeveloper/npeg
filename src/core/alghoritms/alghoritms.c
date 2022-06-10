@@ -34,7 +34,7 @@ enum alghoritms get_alghoritm_type(const char *alghoritm) {
 void process_image(Matrix *channels, int depth, int max_color_value,
                    Options *options) {
     int filter_size = atoi(options->filter_size);
-    float sigma = atof(options->sigma);
+    double sigma = atof(options->sigma);
 
     for (int i = 0; i < depth; i++)
         switch (get_alghoritm_type(options->alghoritm)) {

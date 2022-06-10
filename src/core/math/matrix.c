@@ -7,7 +7,7 @@
 static void _vertical_flip(Matrix *matrix) {
     for (size_t i = 0; i < matrix->height; i++) {
         for (size_t j = 0; j < matrix->width / 2; j++) {
-            uint_fast16_t tmp = matrix->data[i][j];
+            int32_t tmp = matrix->data[i][j];
 
             // just swap pixels from different edges of the matrix.
             matrix->data[i][j] = matrix->data[i][matrix->width - j - 1];
@@ -19,7 +19,7 @@ static void _vertical_flip(Matrix *matrix) {
 static void _horizontal_flip(Matrix *matrix) {
     for (size_t i = 0; i < matrix->height / 2; i++) {
         for (size_t j = 0; j < matrix->width; j++) {
-            uint_fast16_t tmp = matrix->data[i][j];
+            int32_t tmp = matrix->data[i][j];
 
             // just swap pixels from different edges of the matrix.
             matrix->data[i][j] = matrix->data[matrix->height - i - 1][j];
@@ -29,10 +29,9 @@ static void _horizontal_flip(Matrix *matrix) {
 }
 
 Matrix create_matrix(size_t width, size_t height) {
-    uint_fast16_t **data =
-        (uint_fast16_t **)malloc(height * sizeof(uint_fast16_t *));
+    int32_t **data = (int32_t **)malloc(height * sizeof(int32_t *));
     for (size_t i = 0; i < height; i++)
-        data[i] = (uint_fast16_t *)malloc(sizeof(uint_fast16_t) * width);
+        data[i] = (int32_t *)malloc(sizeof(int32_t) * width);
     Matrix matrix = {width, height, data};
     return matrix;
 }
@@ -56,11 +55,9 @@ void rotate_matrix(Matrix *matrix, int degrees) {
     int new_width = (degrees == 180) ? matrix->width : matrix->height;
     int new_height = (degrees == 180) ? matrix->height : matrix->width;
 
-    uint_fast16_t **new_data =
-        (uint_fast16_t **)malloc(sizeof(uint_fast16_t *) * new_height);
+    int32_t **new_data = (int32_t **)malloc(sizeof(int32_t *) * new_height);
     for (int i = 0; i < new_height; i++) {
-        new_data[i] =
-            (uint_fast16_t *)malloc(sizeof(uint_fast16_t) * new_width);
+        new_data[i] = (int32_t *)malloc(sizeof(int32_t) * new_width);
         for (int j = 0; j < new_width; j++) {
             if (degrees == 90) {
                 new_data[i][j] = matrix->data[matrix->height - j - 1][i];
@@ -85,9 +82,9 @@ void rotate_matrix(Matrix *matrix, int degrees) {
 void get_area(Matrix *matrix, Vector *area, int center_x, int center_y,
               int radius) {
     int area_top = 0;
-    for (int i = center_y - radius; i < center_y + radius + 1; i++)
-        for (int j = center_x - radius; j < center_x + radius + 1; j++)
-            area->data[area_top++] = (double)matrix->data[i][j];
+    for (size_t i = center_y - radius; i < center_y + radius + 1; i++)
+        for (size_t j = center_x - radius; j < center_x + radius + 1; j++)
+            area->data[area_top++] = matrix->data[i][j];
 }
 
 void add_matrix(Matrix *dest, const Matrix *src) {
