@@ -10,11 +10,7 @@
 #define DEPTH 1
 
 typedef struct {
-    size_t width, height;
-    union {
-        u8_matrix *channels[DEPTH];
-        u16_matrix *extended_channels[DEPTH];
-    };
+    Matrix channels[DEPTH];
     int depth;
     enum image_encodings encoding;
     int max_color_value;

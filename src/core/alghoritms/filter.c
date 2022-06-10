@@ -76,41 +76,8 @@ static Vector *_gen_kernel(enum filters filter, int kernel_size, float sigma) {
     }
 };
 
-void filter_normal_image(u8_matrix *matrix, int max_color_value,
-                         int filter_size, enum filters filter, float sigma) {
-    int filter_padding = (filter_size - 1) / 2;
-    float area_size = filter_size * filter_size;
-
-    Vector *area = create_vector(area_size);
-    Vector *kernel = _gen_kernel(filter, area_size, sigma);
-
-    uint_fast8_t **new_data =
-        (uint_fast8_t **)malloc(matrix->height * sizeof(uint_fast8_t *));
-    for (size_t i = 0; i < matrix->height; i++)
-        new_data[i] =
-            (uint_fast8_t *)malloc(sizeof(uint_fast8_t) * matrix->width);
-
-    for (int i = filter_padding; i < matrix->height - filter_padding; i++) {
-        for (int j = filter_padding; j < matrix->width - filter_padding; j++) {
-            get_u8_area(matrix, area, j, i, filter_padding);
-            new_data[i][j] = _process_pixel(new_data[i][j], filter,
-                                            max_color_value, kernel, area);
-        }
-    }
-
-    free_vector(area);
-    free_vector(kernel);
-
-    // Free old data.
-    for (size_t i = 0; i < matrix->height; i++)
-        free(matrix->data[i]);
-    free(matrix->data);
-
-    matrix->data = new_data;
-}
-
-void filter_extended_image(u16_matrix *matrix, int max_color_value,
-                           int filter_size, enum filters filter, float sigma) {
+void filter_image(Matrix *matrix, int max_color_value, int filter_size,
+                  enum filters filter, float sigma) {
     int filter_padding = (filter_size - 1) / 2;
     float area_size = filter_size * filter_size;
 
@@ -125,14 +92,15 @@ void filter_extended_image(u16_matrix *matrix, int max_color_value,
 
     for (int i = filter_padding; i < matrix->height - filter_padding; i++) {
         for (int j = filter_padding; j < matrix->width - filter_padding; j++) {
-            get_u16_area(matrix, area, j, i, filter_padding);
+            get_area(matrix, area, j, i, filter_padding);
             new_data[i][j] = _process_pixel(new_data[i][j], filter,
                                             max_color_value, kernel, area);
         }
     }
 
     free_vector(area);
-    free_vector(kernel);
+    if (kernel != NULL)
+        free_vector(kernel);
 
     // Free old data.
     for (size_t i = 0; i < matrix->height; i++)

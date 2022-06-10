@@ -17,6 +17,8 @@ all: $(TARGET)
 release: CFLAGS = -Wall -O2
 release: clean all
 
+test: $(TARGET)
+	./tests/test.py
 
 $(TARGET): $(OBJS) 
 	$(MKDIR_P) $(BUILD_DIR)

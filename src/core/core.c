@@ -9,11 +9,11 @@
 #include "./image_formats/pgm/pgm.h"
 #include "options.h"
 
-// process_image(image.channels, image.depth, image.max_color_value,          \
-    //               options);                                                    \
 // Polymorphism govna.
 #define PROCESS_IMAGE(image_format)                                            \
     image_format##_image image = create_##image_format##_image(image_file);    \
+    process_image(image.channels, image.depth, image.max_color_value,          \
+                  options);                                                    \
     dump_##image_format##_image(&image, options->output_path);                 \
     free_##image_format##_image(&image);
 

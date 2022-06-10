@@ -21,9 +21,12 @@ static void _read_header(pgm_image *image, FILE *image_file) {
         if (byte == '#') {
             fgets(buffer, sizeof(buffer), image_file);
         } else if (isdigit(byte) && !is_size_readen) {
+            size_t width, height;
             fseek(image_file, -1, SEEK_CUR);
-            fscanf(image_file, "%zu", &image->width);
-            fscanf(image_file, "%zu", &image->height);
+            fscanf(image_file, "%zu", &width);
+            fscanf(image_file, "%zu", &height);
+
+            image->channels[0] = create_matrix(width, height);
 
             is_size_readen = 1;
         } else if (isdigit(byte) && is_size_readen) {
@@ -32,33 +35,23 @@ static void _read_header(pgm_image *image, FILE *image_file) {
             break;
         }
     }
-
-    if (image->max_color_value > 255)
-        image->extended_channels[0] =
-            create_u16_matrix(image->width, image->height);
-    else
-        image->channels[0] = create_u8_matrix(image->width, image->height);
+    // skip whitespace symbol
+    fgetc(image_file);
 }
 
 static void _read_raw_image_data(pgm_image *image, FILE *image_file) {
-    printf("Read raw\n");
-    for (int i = 0; i < image->height; i++)
-        for (int j = 0; j < image->width; j++)
+    for (int i = 0; i < image->channels->height; i++)
+        for (int j = 0; j < image->channels->width; j++)
             if (image->max_color_value > 255)
-                fscanf(image_file, "%lu",
-                       image->extended_channels[0]->data[i] + j);
+                fscanf(image_file, "%lu", image->channels[0].data[i] + j);
             else
-                fscanf(image_file, "%c", image->channels[0]->data[i] + j);
+                fscanf(image_file, "%c", image->channels[0].data[i] + j);
 }
 
 static void _read_ascii_image_data(pgm_image *image, FILE *image_file) {
-    for (int i = 0; i < image->height; i++)
-        for (int j = 0; j < image->width; j++)
-            if (image->max_color_value > 255)
-                fscanf(image_file, "%lu",
-                       image->extended_channels[0]->data[i] + j);
-            else
-                fscanf(image_file, "%hhu", image->channels[0]->data[i] + j);
+    for (int i = 0; i < image->channels->height; i++)
+        for (int j = 0; j < image->channels->width; j++)
+            fscanf(image_file, "%lu", image->channels[0].data[i] + j);
 }
 
 static void _read_image_data(pgm_image *image, FILE *image_file) {
@@ -69,21 +62,18 @@ static void _read_image_data(pgm_image *image, FILE *image_file) {
 }
 
 static void _dump_raw_data(pgm_image *image, FILE *fout) {
-    for (int i = 0; i < image->height; i++)
-        for (int j = 0; j < image->width; j++)
+    for (int i = 0; i < image->channels->height; i++)
+        for (int j = 0; j < image->channels->width; j++)
             if (image->max_color_value > 255)
-                fprintf(fout, "%lu", image->extended_channels[0]->data[i][j]);
+                fprintf(fout, "%lu", image->channels[0].data[i][j]);
             else
-                fprintf(fout, "%c", image->channels[0]->data[i][j]);
+                fprintf(fout, "%c", image->channels[0].data[i][j]);
 }
 
 static void _dump_ascii_data(pgm_image *image, FILE *fout) {
-    for (int i = 0; i < image->height; i++)
-        for (int j = 0; j < image->width; j++)
-            if (image->max_color_value > 255)
-                fprintf(fout, "%lu ", image->extended_channels[0]->data[i][j]);
-            else
-                fprintf(fout, "%hhu ", image->channels[0]->data[i][j]);
+    for (int i = 0; i < image->channels->height; i++)
+        for (int j = 0; j < image->channels->width; j++)
+            fprintf(fout, "%lu ", image->channels[0].data[i][j]);
 }
 
 void dump_pgm_image(pgm_image *image, const char *path) {
@@ -96,8 +86,8 @@ void dump_pgm_image(pgm_image *image, const char *path) {
     fprintf(fout, "%s\n", magic_num);
 
     // Write image size.
-    fprintf(fout, "%zu %zu\n", image->channels[0]->width,
-            image->channels[0]->height);
+    fprintf(fout, "%zu %zu\n", image->channels[0].width,
+            image->channels[0].height);
 
     // Write max gray value.
     fprintf(fout, "%d\n", image->max_color_value);
@@ -120,9 +110,4 @@ pgm_image create_pgm_image(FILE *image_file) {
     return image;
 }
 
-void free_pgm_image(pgm_image *image) {
-    if (image->max_color_value > 255)
-        free_u16_matrix(image->extended_channels[0]);
-    else
-        free_u8_matrix(image->channels[0]);
-}
+void free_pgm_image(pgm_image *image) { free_matrix(image->channels); }
