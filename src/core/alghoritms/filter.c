@@ -91,13 +91,19 @@ void filter_image(Matrix *matrix, int max_color_value, int filter_size,
                 sort_vector(area);
                 new_data[i][j] = (int32_t)area->data[area->size / 2 + 1];
             }
-            if (filter == BOX_FILTER)
+            if (filter == BOX_FILTER) {
+
                 new_data[i][j] = round(sum_vector(area) / (double)area->size);
-            if (filter == GAUSSIAN_FILTER)
+            }
+            if (filter == GAUSSIAN_FILTER) {
+
                 new_data[i][j] = round(mult_vectors(kernel, area));
-            if (filter == UNSHARP_FILTER)
+            }
+            if (filter == UNSHARP_FILTER) {
+
                 new_data[i][j] =
                     round((double)new_data[i][j] - mult_vectors(kernel, area));
+            }
             printf("%d ", new_data[i][j]);
         }
     }
