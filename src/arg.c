@@ -74,17 +74,12 @@ bool cmp_args(const Arg *arg, const char *str_arg) {
 }
 
 static void validate_path(ValueType value_type, const char *path) {
-    char error_msg[2048];
     if (value_type == CONST_PATH && !is_file_exists(path)) {
-        sprintf(error_msg, "Error: file '%s' does not exists.\n", path);
-        die(error_msg);
+        die("Error: file '%s' does not exists.\n", path);
     }
 
     if (value_type == CONST_PATH && !can_read(path)) {
-        sprintf(error_msg,
-                "Error: does not have permissions for reading file '%s'.\n",
-                path);
-        die(error_msg);
+        die("Error: does not have permissions for reading file '%s'.\n", path);
     }
 }
 
@@ -141,29 +136,22 @@ static bool is_real(const char *s) {
 }
 
 void is_valid_arg_value(const Arg *arg, const char *value) {
-    char error_msg[2048];
     if (is_file(arg)) {
         validate_path(arg->value_type, value);
     }
 
     if (arg->value_type == INT) {
         if (!is_int(value)) {
-            sprintf(error_msg, "Error: argument value %s must be a integer.\n",
-                    value);
-            die(error_msg);
+            die("Error: argument value %s must be a integer.\n", value);
         }
     } else if (arg->value_type == UINT) {
         if (!is_uint(value)) {
-            sprintf(error_msg,
-                    "Error: argument value %s must be a unsigned integer.\n",
-                    value);
-            die(error_msg);
+            die("Error: argument value %s must be a unsigned integer.\n",
+                value);
         }
     } else if (arg->value_type == REAL) {
         if (!is_real(value)) {
-            sprintf(error_msg, "Error: argument value %s must be a real.\n",
-                    value);
-            die(error_msg);
+            die("Error: argument value %s must be a real.\n", value);
         }
     }
 
@@ -175,8 +163,7 @@ void is_valid_arg_value(const Arg *arg, const char *value) {
             }
         }
         if (!valid_value) {
-            sprintf(error_msg, "Error: invalid argument value '%s'.\n", value);
-            die(error_msg);
+            die("Error: invalid argument value '%s'.\n", value);
         }
     }
 }

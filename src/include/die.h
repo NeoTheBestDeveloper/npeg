@@ -1,8 +1,11 @@
 #ifndef H_DIE
 #define H_DIE
 
-#include <stdnoreturn.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-noreturn void die(const char *msg);
+#define die(format, ...)                                                       \
+    fprintf(stderr, format, __VA_ARGS__);                                      \
+    exit(EXIT_FAILURE);
 
 #endif // !H_DIE

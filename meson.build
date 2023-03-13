@@ -34,4 +34,7 @@ warning_flags = [
 
 add_project_arguments(cc.get_supported_arguments(warning_flags), language: 'c')
 
-executable('npeg', sources, include_directories: incdir)
+cc = meson.get_compiler('c')
+math_dep = cc.find_library('m', required : true)
+
+executable('npeg', sources, include_directories: incdir, dependencies : math_dep)

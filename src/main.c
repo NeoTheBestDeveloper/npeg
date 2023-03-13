@@ -8,8 +8,6 @@
 #include "arg.h"
 #include "src/core/core.h"
 
-char error_msg[2048];
-
 void get_help(void) { printf("Help\n"); }
 
 bool is_argument(const char *arg) {
@@ -29,15 +27,12 @@ bool is_argument_sep(const char *arg) { return (0 == strcmp(arg, "--")); }
 
 char *get_arg_value(const Arg *arg, i32 *i, i32 argc, char *argv[]) {
     if (*i == argc - 1) {
-        sprintf(error_msg, "Error: arg '%s' must have a value.\n", argv[*i]);
-        die(error_msg);
+        die("Error: arg '%s' must have a value.\n", argv[*i]);
     }
 
     if (is_argument_sep(argv[*i + 1])) {
         if (*i + 1 == argc - 1) {
-            sprintf(error_msg, "Error: arg '%s' must have a value.\n",
-                    argv[*i]);
-            die(error_msg);
+            die("Error: arg '%s' must have a value.\n", argv[*i])
         }
         is_valid_arg_value(arg, argv[*i + 2]);
         (*i) += 2;
@@ -45,11 +40,9 @@ char *get_arg_value(const Arg *arg, i32 *i, i32 argc, char *argv[]) {
     }
 
     if (is_argument(argv[*i + 1])) {
-        sprintf(error_msg,
-                "Error: arg '%s' must have a value. If you mean that '%s' is "
-                "argument value add '--' before them.\n",
-                argv[*i], argv[*i + 1]);
-        die(error_msg);
+        die("Error: arg '%s' must have a value. If you mean that '%s' is "
+            "argument value add '--' before them.\n",
+            argv[*i], argv[*i + 1]);
     }
 
     is_valid_arg_value(arg, argv[*i + 1]);
@@ -106,9 +99,7 @@ i32 main(i32 argc, char *argv[]) {
 
         } else if (cmp_args(&opts, argv[i])) {
             if (algorithm_name == NULL) {
-                sprintf(error_msg,
-                        "Error: '%s' must be after algorithm name.\n", argv[i]);
-                die(error_msg);
+                die("Error: '%s' must be after algorithm name.\n", argv[i]);
             }
             char *algorithm_opts = get_arg_value(&opts, &i, argc, argv);
             if (algorithms) {
@@ -124,8 +115,7 @@ i32 main(i32 argc, char *argv[]) {
             algorithm_name = NULL;
 
         } else {
-            sprintf(error_msg, "Error: unknown argument '%s'.\n", argv[i]);
-            die(error_msg);
+            die("Error: unknown argument '%s'.\n", argv[i]);
         }
     }
 
@@ -133,12 +123,10 @@ i32 main(i32 argc, char *argv[]) {
         if (!required_args_gotten[i]) {
             switch (i) {
             case INPUT:
-                sprintf(error_msg, "Error: input arg is required.\n");
-                die(error_msg);
+                die("Error: input arg is required.\n", NULL);
                 break;
             case OUTPUT:
-                sprintf(error_msg, "Error: output arg is required.\n");
-                die(error_msg);
+                die("Error: output arg is required.\n", NULL);
                 break;
             }
         }

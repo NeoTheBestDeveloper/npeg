@@ -8,6 +8,10 @@
 #include "core.h"
 #include "die.h"
 
+#define PROCESS_IMAGE(format)                                                  \
+    (format##_img img = format##_img_open(input_path);                         \
+     format##_img_save(&img, output_path); format##_img_free(&img);)
+
 #define ASCII_PBM_MAGIC "P1"
 #define ASCII_PGM_MAGIC "P2"
 #define ASCII_PPM_MAGIC "P3"
@@ -28,9 +32,6 @@ typedef enum {
     PBM,
     PGM,
     PPM,
-    ASCII_PBM,
-    ASCII_PGM,
-    ASCII_PPM,
 } ImageFormat;
 
 static bool array_cmp(const u8 *arr1, const u8 *arr2, u64 len) {
@@ -71,12 +72,6 @@ static const char *format_to_text(ImageFormat format) {
         return "PAM";
     case PPM:
         return "PPM";
-    case ASCII_PBM:
-        return "ASCII PBM";
-    case ASCII_PGM:
-        return "ASCII PGM";
-    case ASCII_PPM:
-        return "ASCII PPM";
     default:
         return "unknown";
     }
@@ -104,21 +99,11 @@ static ImageFormat guess_image_format(i32 fin) {
         return PPM;
     }
 
-    if (0 == strncmp(buf, ASCII_PBM_MAGIC, 2)) {
-        return ASCII_PBM;
-    }
-    if (0 == strncmp(buf, ASCII_PGM_MAGIC, 2)) {
-        return ASCII_PGM;
-    }
-    if (0 == strncmp(buf, ASCII_PPM_MAGIC, 2)) {
-        return ASCII_PPM;
-    }
-
     if (0 == strncmp(buf, PAM_MAGIC, 2)) {
         return PAM;
     }
 
-    die("Error: unknown format\n");
+    die("Error: unknown format\n", NULL)
 }
 
 void process_image(const char *input_path, const char *output_path,
@@ -128,4 +113,15 @@ void process_image(const char *input_path, const char *output_path,
     ImageFormat format = guess_image_format(fin);
 
     close(fin);
+
+    switch (format) {
+    case PNG:
+    case JPG:
+    case PAM:
+    case PBM:
+    case PGM:
+    case PPM:
+        die("Error: this format (%s) is not supported yet.\n",
+            format_to_text(format))
+    }
 }
