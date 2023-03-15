@@ -19,6 +19,11 @@ void process_image(Arg *args, u64 args_count) {
 
     Img *img = img_open(input_path);
 
+    if (!img) {
+        die("Error: cannot open image. File '%s' does not exists.\n",
+            input_path)
+    }
+
     for (u64 i = 0; i < args_count; i++) {
         if (0 == strcmp("rotate", args[i].full_name) && args[i].data != NULL) {
             img_rotate(img, *(f32 *)args[i].data);

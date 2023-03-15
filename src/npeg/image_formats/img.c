@@ -1,6 +1,5 @@
 #include <fcntl.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -85,7 +84,14 @@ ImageFormat guess_image_format(i32 fin) {
     die("Error: unknown image format.\n", NULL)
 }
 
+static bool file_exists(const char *path) { return access(path, F_OK) == 0; }
+
+// Return null, if file does not exists.
 Img *img_open(const char *path) {
+    if (!file_exists(path)) {
+        return NULL;
+    }
+
     i32 fin = open(path, O_RDONLY);
     ImageFormat format = guess_image_format(fin);
     close(fin);
@@ -124,9 +130,10 @@ void img_free(Img *img) {
     case PGM:
     case PAM:
     case PPM:
-        die("Error: this image format (%s) is not supported yet.\n",
+        die("Error: this image format '%s' is not supported yet.\n",
             format_to_text(img->format));
     }
+
     _img_free(img);
 }
 
@@ -137,9 +144,11 @@ void img_rotate(Img *img, f32 degrees) {
 }
 
 void img_save(const Img *img, const char *path) {
+    i32 fout = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+
     switch (img->format) {
     case PBM:
-        pbm_img_save((const PbmImg *)img, path);
+        pbm_img_save((const PbmImg *)img, fout);
         break;
     case PNG:
     case JPG:
@@ -149,4 +158,6 @@ void img_save(const Img *img, const char *path) {
         die("Error: this image format (%s) is not supported yet.\n",
             format_to_text(img->format));
     }
+
+    close(fout);
 }

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../..//math/matrix/matrix.h"
+#include "../../math/matrix/matrix.h"
 #include "../img.h"
 #include "die.h"
 #include "pbm.h"
@@ -111,14 +111,10 @@ static void write_data(const PbmImg *img, i32 fout) {
     }
 }
 
-void pbm_img_save(const PbmImg *img, const char *output_path) {
-    i32 fout = open(output_path, O_RDWR | O_TRUNC | O_CREAT);
-
+void pbm_img_save(const PbmImg *img, i32 fout) {
     write_magic(img, fout);
     write_size(img, fout);
     write_data(img, fout);
-
-    close(fout);
 }
 
 void pbm_img_free(PbmImg *img) { return; }
