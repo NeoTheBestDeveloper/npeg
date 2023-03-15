@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "algorithm.h"
 #include "arg.h"
+#include "core/algorithms/algorithm.h"
 #include "src/core/core.h"
 
 void get_help(void) { printf("Help\n"); }
@@ -53,7 +53,7 @@ char *get_arg_value(const Arg *arg, i32 *i, i32 argc, char *argv[]) {
     }
 
     char *values = NULL;
-    while ((*i < argc - 1) && !is_argument(argv[*i])) {
+    while ((*i < argc) && !is_argument(argv[*i])) {
         if (values == NULL) {
             values = (char *)calloc(strlen(argv[*i]) + 2, 1);
         } else {
@@ -96,6 +96,7 @@ i32 main(i32 argc, char *argv[]) {
 
         } else if (cmp_args(&algorithm, argv[i])) {
             algorithm_name = get_arg_value(&algorithm, &i, argc, argv);
+            algorithms_count++;
 
         } else if (cmp_args(&opts, argv[i])) {
             if (algorithm_name == NULL) {
@@ -104,12 +105,12 @@ i32 main(i32 argc, char *argv[]) {
             char *algorithm_opts = get_arg_value(&opts, &i, argc, argv);
             if (algorithms) {
                 algorithms = (Algorithm *)realloc(
-                    algorithms, sizeof(Algorithm) * (algorithms_count + 1));
+                    algorithms, sizeof(Algorithm) * (algorithms_count));
             } else {
-                algorithms = (Algorithm *)malloc(sizeof(Algorithm) *
-                                                 (algorithms_count + 1));
+                algorithms =
+                    (Algorithm *)malloc(sizeof(Algorithm) * (algorithms_count));
             }
-            algorithms[algorithms_count++] =
+            algorithms[algorithms_count - 1] =
                 algorithm_new(algorithm_name, algorithm_opts);
             free(algorithm_opts);
             algorithm_name = NULL;
@@ -117,6 +118,17 @@ i32 main(i32 argc, char *argv[]) {
         } else {
             die("Error: unknown argument '%s'.\n", argv[i]);
         }
+    }
+
+    if (algorithm_name) { // mean gotten algorithm without options.
+        if (algorithms) {
+            algorithms = (Algorithm *)realloc(
+                algorithms, sizeof(Algorithm) * (algorithms_count));
+        } else {
+            algorithms =
+                (Algorithm *)malloc(sizeof(Algorithm) * (algorithms_count));
+        }
+        algorithms[algorithms_count - 1] = algorithm_new(algorithm_name, "");
     }
 
     for (u8 i = 0; i < required_args_count; i++) {
@@ -127,6 +139,9 @@ i32 main(i32 argc, char *argv[]) {
                 break;
             case OUTPUT:
                 die("Error: output arg is required.\n", NULL);
+                break;
+            default:
+                die("Error: unknown requierd argument.\n", NULL);
                 break;
             }
         }

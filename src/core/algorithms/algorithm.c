@@ -1,9 +1,10 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <string.h>
-#include <types.h>
 
 #include "algorithm.h"
+#include "die.h"
+#include "types.h"
 
 static AlgorithmOption option_new(const char *key, const char *value) {
     u64 key_len = strlen(key);
@@ -24,15 +25,20 @@ static void option_free(AlgorithmOption *opt) {
     free(opt->value);
 }
 
+static AlgorithmName srt_to_algorithm_name(const char *str) {
+    if (0 == strcmp(str, "rotate")) {
+        return ROTATE;
+    }
+
+    die("Error: unknown algorithm name.\n", NULL)
+}
+
 Algorithm algorithm_new(const char *name, const char *opts) {
-    u64 name_len = strlen(name);
     Algorithm algorithm = {
-        .name = malloc(name_len + 1),
+        .name = srt_to_algorithm_name(name),
         .options = NULL,
         .options_count = 0,
     };
-
-    strncpy(algorithm.name, name, name_len + 1);
 
     u64 opts_len = strlen(opts);
 
@@ -86,10 +92,7 @@ Algorithm algorithm_new(const char *name, const char *opts) {
 }
 
 void algorithm_free(Algorithm *algorithm) {
-
     for (u32 i = 0; i < algorithm->options_count; i++) {
         option_free(algorithm->options + i);
     }
-
-    free(algorithm->name);
 }

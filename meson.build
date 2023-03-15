@@ -29,8 +29,12 @@ warning_flags = [
   '-Wtype-limits',
   '-Wunused-result',
   '-Wvariadic-macros',
+  '-Wno-format-extra-args',
 ]
 
+if get_option('buildtype').startswith('debug')
+  add_project_arguments('-DDEBUG', language : 'c')
+endif
 
 add_project_arguments(cc.get_supported_arguments(warning_flags), language: 'c')
 

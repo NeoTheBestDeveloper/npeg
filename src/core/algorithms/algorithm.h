@@ -8,8 +8,12 @@ typedef struct {
     char *value;
 } AlgorithmOption;
 
+typedef enum {
+    ROTATE,
+} AlgorithmName;
+
 typedef struct {
-    char *name;
+    AlgorithmName name;
     AlgorithmOption *options;
     u32 options_count;
 } Algorithm;

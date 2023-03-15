@@ -1,127 +1,92 @@
-#include <fcntl.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <types.h>
-#include <unistd.h>
 
 #include "core.h"
 #include "die.h"
+#include "image_formats/img.h"
+static bool is_int(const char *s) {
+    u64 str_len = strlen(s);
 
-#define PROCESS_IMAGE(format)                                                  \
-    (format##_img img = format##_img_open(input_path);                         \
-     format##_img_save(&img, output_path); format##_img_free(&img);)
-
-#define ASCII_PBM_MAGIC "P1"
-#define ASCII_PGM_MAGIC "P2"
-#define ASCII_PPM_MAGIC "P3"
-
-#define PBM_MAGIC "P4"
-#define PGM_MAGIC "P5"
-#define PPM_MAGIC "P6"
-
-#define PAM_MAGIC "P7"
-
-const u8 png_magic[] = {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
-const u8 jpg_magic[] = {0xff, 0xd8, 0xff};
-
-typedef enum {
-    PNG,
-    JPG,
-    PAM,
-    PBM,
-    PGM,
-    PPM,
-} ImageFormat;
-
-static bool array_cmp(const u8 *arr1, const u8 *arr2, u64 len) {
-    for (u64 i = 0; i < len; i++) {
-        if (arr1[i] != arr2[i])
+    for (u64 i = 0; i < str_len; i++) {
+        if (i == 0 && s[i] == '-')
+            continue;
+        if (!isdigit(s[i]))
             return false;
     }
     return true;
 }
 
-static bool is_png(i32 fin) {
-    u8 buf[8];
-    read(fin, buf, 8);
-    lseek(fin, 0, SEEK_SET);
+static bool is_uint(const char *s) {
+    u64 str_len = strlen(s);
 
-    return array_cmp(png_magic, buf, 8);
+    for (u64 i = 0; i < str_len; i++) {
+        if (!isdigit(s[i]))
+            return false;
+    }
+    return true;
 }
 
-static bool is_jpg(i32 fin) {
-    u8 buf[3];
-    read(fin, buf, 3);
-    lseek(fin, 0, SEEK_SET);
+static bool is_real(const char *s) {
+    u64 str_len = strlen(s);
+    u8 dots_count = 0;
 
-    return array_cmp(jpg_magic, buf, 3);
-}
+    for (u64 i = 0; i < str_len; i++) {
+        if (i == 0 && s[0] == '-')
+            continue;
+        if (i == 0 && s[0] == '.')
+            continue;
 
-static const char *format_to_text(ImageFormat format) {
-    switch (format) {
-    case PNG:
-        return "PNG";
-    case JPG:
-        return "JPG";
-    case PBM:
-        return "PBM";
-    case PGM:
-        return "PGM";
-    case PAM:
-        return "PAM";
-    case PPM:
-        return "PPM";
-    default:
-        return "unknown";
-    }
-}
+        if (i == 1 && s[1] == '-' && s[0] == '.')
+            continue;
+        if (i == 1 && s[1] == '.' && s[0] == '-')
+            continue;
 
-static ImageFormat guess_image_format(i32 fin) {
-    if (is_png(fin)) {
-        return PNG;
-    }
-    if (is_jpg(fin)) {
-        return JPG;
-    }
+        if (s[i] == '.' && dots_count == 0) {
+            dots_count++;
+            continue;
+        }
 
-    char buf[2];
-    read(fin, buf, 2);
-    lseek(fin, 0, SEEK_SET);
+        if (s[i] == '.' && dots_count != 0) {
+            return false;
+        }
 
-    if (0 == strncmp(buf, PBM_MAGIC, 2)) {
-        return PBM;
+        if (!isdigit(s[i]))
+            return false;
     }
-    if (0 == strncmp(buf, PGM_MAGIC, 2)) {
-        return PGM;
-    }
-    if (0 == strncmp(buf, PPM_MAGIC, 2)) {
-        return PPM;
-    }
-
-    if (0 == strncmp(buf, PAM_MAGIC, 2)) {
-        return PAM;
-    }
-
-    die("Error: unknown format\n", NULL)
+    return true;
 }
 
 void process_image(const char *input_path, const char *output_path,
                    const Algorithm *algorithms, u32 algorithms_count) {
-    i32 fin = open(input_path, O_RDONLY);
-
-    ImageFormat format = guess_image_format(fin);
-
-    close(fin);
-
-    switch (format) {
-    case PNG:
-    case JPG:
-    case PAM:
-    case PBM:
-    case PGM:
-    case PPM:
-        die("Error: this format (%s) is not supported yet.\n",
-            format_to_text(format))
+    Img *img = img_open(input_path);
+    for (u32 i = 0; i < algorithms_count; i++) {
+        switch (algorithms[i].name) {
+        case ROTATE: {
+            bool rotated = false;
+            for (u32 j = 0; j < algorithms[i].options_count; j++) {
+                if (0 == strcmp(algorithms->options[j].key, "degrees")) {
+                    if (!is_real(algorithms->options[j].value)) {
+                        die("Error: 'degrees' option must be real number.\n",
+                            NULL)
+                    }
+                    img_rotate(img, (f32)atof(algorithms->options[j].value));
+                    rotated = true;
+                    break;
+                }
+            }
+            if (!rotated) {
+                die("Error: rotate algorithm must have 'degrees' option.\n",
+                    NULL);
+            }
+            break;
+        }
+        default:
+            die("Error: unknown algorithm.\n", NULL)
+        }
     }
+
+    img_save(img, output_path);
+    img_free(img);
 }

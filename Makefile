@@ -10,3 +10,7 @@ clean:
 
 setup:
 	meson setup build
+
+resetup:
+	rm -rf build .cache 
+	meson setup build

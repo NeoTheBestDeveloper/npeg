@@ -2,3 +2,9 @@ build
 .cache
 cache
 assets
+*.pbm
+*.pgm
+*.ppm
+*.ppa
+*.png
+*.jpg
