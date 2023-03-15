@@ -116,5 +116,3 @@ void pbm_img_save(const PbmImg *img, i32 fout) {
     write_size(img, fout);
     write_data(img, fout);
 }
-
-void pbm_img_free(PbmImg *img) { return; }

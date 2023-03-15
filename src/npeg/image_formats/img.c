@@ -123,7 +123,6 @@ static void _img_free(Img *img) {
 void img_free(Img *img) {
     switch (img->format) {
     case PBM:
-        pbm_img_free((PbmImg *)img);
         break;
     case PNG:
     case JPG:

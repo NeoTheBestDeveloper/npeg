@@ -13,6 +13,5 @@ typedef struct {
 Img *pbm_img_open(const char *path);
 
 void pbm_img_save(const PbmImg *img, i32 fout);
-void pbm_img_free(PbmImg *img);
 
 #endif // !H_PBM

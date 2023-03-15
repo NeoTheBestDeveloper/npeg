@@ -1,5 +1,4 @@
 #include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -92,23 +91,6 @@ static i64 find_arg(const char *str_arg, const Action *action) {
 }
 
 static bool is_arg(const char *str_arg) { return (str_arg[0] == '-'); }
-
-static void find_unknown_args(ArgsParser *args_parser) {
-    for (i32 i = 1; i < args_parser->argc; i++) {
-        bool arg_found = false;
-        for (u64 j = 0; j < args_parser->actions_count; j++) {
-            i64 arg_id =
-                find_arg(args_parser->argv[i], args_parser->actions + j);
-            if (arg_id != -1) {
-                arg_found = true;
-            }
-        }
-        if (!arg_found && is_arg(args_parser->argv[i])) {
-            die("Error: unknown argument '%s'.\n%s", args_parser->argv[i],
-                HELP_ADVICE)
-        }
-    }
-}
 
 static bool is_int(const char *s) {
     u64 str_len = strlen(s);
