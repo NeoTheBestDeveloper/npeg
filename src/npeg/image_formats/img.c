@@ -1,14 +1,15 @@
 #include <fcntl.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "../math/matrix/matrix.h"
 #include "die.h"
 #include "img.h"
 #include "img_magics.h"
 #include "pbm/pbm.h"
-#include "src/core/math/matrix/matrix.h"
 
 static bool array_cmp(const u8 *arr1, const u8 *arr2, u64 len) {
     for (u64 i = 0; i < len; i++) {
@@ -60,7 +61,7 @@ ImageFormat guess_image_format(i32 fin) {
         return JPG;
     }
 
-    char buf[2];
+    char buf[3] = {0};
     read(fin, buf, 2);
     lseek(fin, 0, SEEK_SET);
 

@@ -1,8 +1,9 @@
-subdir('core')
+subdir('cli')
+subdir('npeg')
 
 sources = files(
   'main.c',
-  'arg.c',
 )
 
-sources += core_sources
+sources += cli_sources
+sources += npeg_sources

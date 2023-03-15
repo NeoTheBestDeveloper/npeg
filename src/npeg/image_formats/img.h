@@ -1,7 +1,7 @@
 #ifndef H_IMG
 #define H_IMG
 
-#include "src/core/math/matrix/matrix.h"
+#include "../math/matrix/matrix.h"
 
 typedef enum {
     PNG,

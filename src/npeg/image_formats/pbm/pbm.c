@@ -5,10 +5,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "../..//math/matrix/matrix.h"
 #include "../img.h"
 #include "die.h"
 #include "pbm.h"
-#include "src/core/math/matrix/matrix.h"
 
 #define SIZE_BUFFER_SIZE 32
 
