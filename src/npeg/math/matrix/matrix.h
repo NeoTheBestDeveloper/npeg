@@ -1,5 +1,5 @@
-#ifndef H_U8_MATRIX
-#define H_U8_MATRIX
+#ifndef H_MATRIX
+#define H_MATRIX
 
 #include <stdbool.h>
 #include <types.h>
@@ -9,17 +9,18 @@ typedef enum {
     U16_MATRIX,
 } MatrixType;
 
-// Matrix work with unsigned integer types as u8 and u16.
+// Matrix work with unsigned integer types as u8 or u16.
 typedef struct {
-    u64 height, width;
+    i64 height, width;
     void *data;
     MatrixType matrix_type;
 } Matrix;
 
-Matrix matrix_new(u64 width, u64 height, MatrixType matrix_type,
+Matrix matrix_new(i64 width, i64 height, MatrixType matrix_type,
                   bool fill_zeroes);
 void matrix_free(Matrix *matrix);
 
-void matrix_rotate(Matrix *matrix, f32 degrees);
+void matrix_downscale(Matrix *src, i64 factor);
+void matrix_upscale(Matrix *src, i64 factor);
 
-#endif // !H_U8_MATRIX
+#endif // !H_MATRIX

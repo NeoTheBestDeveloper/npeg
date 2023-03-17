@@ -14,7 +14,7 @@
 
 static bool is_ascii(const char *magic) { return 0 == strncmp(magic, "P1", 2); }
 
-static void read_size(u64 *width, u64 *height, i32 fin) {
+static void read_size(i64 *width, i64 *height, i32 fin) {
     char size_buffer[SIZE_BUFFER_SIZE] = {0};
     u8 buffer_top = 0;
 
@@ -28,7 +28,7 @@ static void read_size(u64 *width, u64 *height, i32 fin) {
         } while (!isspace(size_buffer[buffer_top - 1]));
         size_buffer[buffer_top - 1] = '\0';
 
-        *width = (u64)atol(size_buffer);
+        *width = atol(size_buffer);
         width_readen = true;
         buffer_top = 0;
 
@@ -38,24 +38,25 @@ static void read_size(u64 *width, u64 *height, i32 fin) {
         } while (!isspace(size_buffer[buffer_top - 1]));
         size_buffer[buffer_top - 1] = '\0';
 
-        *height = (u64)atol(size_buffer);
+        *height = atol(size_buffer);
         height_readen = true;
         buffer_top = 0;
     }
 }
 
 static void read_data(PbmImg *img, i32 fin) {
+    // Add reading by 8k blocks.
     char new_line;
     read(fin, &new_line, 1); // skip whitespace symbol.
-    u64 width, height;
+    i64 width, height;
 
     read_size(&width, &height, fin);
     img->img.channels = (Matrix *)malloc(sizeof(Matrix));
     img->img.channels[0] = matrix_new(width, height, U8_MATRIX, false);
     u8 *data = (u8 *)img->img.channels->data;
 
-    for (u64 i = 0; i < img->img.channels->height; i++) {
-        for (u64 j = 0; j < img->img.channels->width; j++) {
+    for (i64 i = 0; i < img->img.channels->height; i++) {
+        for (i64 j = 0; j < img->img.channels->width; j++) {
             u8 byte;
             do {
                 read(fin, &byte, 1);
@@ -103,8 +104,8 @@ static void write_size(const PbmImg *img, i32 fout) {
 static void write_data(const PbmImg *img, i32 fout) {
     char buf[2] = {'0', ' '};
     u8 *data = (u8 *)img->img.channels->data;
-    for (u64 i = 0; i < img->img.channels->height; i++) {
-        for (u64 j = 0; j < img->img.channels->width; j++) {
+    for (i64 i = 0; i < img->img.channels->height; i++) {
+        for (i64 j = 0; j < img->img.channels->width; j++) {
             buf[0] = data[i * img->img.channels->width + j] + '0';
             write(fout, buf, 2);
         }
@@ -112,7 +113,7 @@ static void write_data(const PbmImg *img, i32 fout) {
 }
 
 void pbm_img_save(const PbmImg *img, i32 fout) {
-    write_magic(img, fout);
-    write_size(img, fout);
-    write_data(img, fout);
+    // write_magic(img, fout);
+    // write_size(img, fout);
+    // write_data(img, fout);
 }

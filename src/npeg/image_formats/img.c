@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../math/matrix/matrix.h"
+#include "../algorithms/algorithms.h"
 #include "die.h"
 #include "img.h"
 #include "img_magics.h"

@@ -1,14 +1,11 @@
 #include <malloc.h>
 #include <math.h>
+#include <time.h>
 
 #include "die.h"
 #include "matrix.h"
 
-#define PI 3.141592653589793f
-
-static f32 deg_to_rad(f32 degrees) { return degrees * (PI / 180.0f); }
-
-Matrix matrix_new(u64 width, u64 height, MatrixType matrix_type,
+Matrix matrix_new(i64 width, i64 height, MatrixType matrix_type,
                   bool fill_zeroes) {
     Matrix matrix = {
         .height = height,
@@ -18,17 +15,17 @@ Matrix matrix_new(u64 width, u64 height, MatrixType matrix_type,
     switch (matrix_type) {
     case U8_MATRIX: {
         if (fill_zeroes) {
-            matrix.data = (u8 *)calloc(width * height, sizeof(u8));
+            matrix.data = (u8 *)calloc((u64)(width * height), sizeof(u8));
         } else {
-            matrix.data = (u8 *)malloc(width * height * sizeof(u8));
+            matrix.data = (u8 *)malloc((u64)(width * height) * sizeof(u8));
         }
         break;
     }
     case U16_MATRIX: {
         if (fill_zeroes) {
-            matrix.data = (u16 *)calloc(width * height, sizeof(u16));
+            matrix.data = (u16 *)calloc((u64)(width * height), sizeof(u16));
         } else {
-            matrix.data = (u16 *)malloc(width * height * sizeof(u16));
+            matrix.data = (u16 *)malloc((u64)(width * height) * sizeof(u16));
         }
         break;
     }
@@ -43,14 +40,14 @@ Matrix matrix_new(u64 width, u64 height, MatrixType matrix_type,
 
 void matrix_free(Matrix *matrix) { free(matrix->data); }
 
-static void matrix_upscale_u16(const Matrix *src, Matrix *dst, u64 factor) {
+static void matrix_upscale_u16(const Matrix *src, Matrix *dst, i64 factor) {
     u16 *dst_data = (u16 *)dst->data;
     u16 *src_data = (u16 *)src->data;
 
-    for (u64 i = 0; i < src->height; i++) {
-        for (u64 j = 0; j < src->width; j++) {
-            for (u64 k = 0; k < factor; k++) {
-                for (u64 p = 0; p < factor; p++) {
+    for (i64 i = 0; i < src->height; i++) {
+        for (i64 j = 0; j < src->width; j++) {
+            for (i64 k = 0; k < factor; k++) {
+                for (i64 p = 0; p < factor; p++) {
                     dst_data[(factor * i + k) * dst->width + (factor * j + p)] =
                         src_data[i * src->width + j];
                 }
@@ -59,14 +56,14 @@ static void matrix_upscale_u16(const Matrix *src, Matrix *dst, u64 factor) {
     }
 }
 
-static void matrix_upscale_u8(const Matrix *src, Matrix *dst, u64 factor) {
+static void matrix_upscale_u8(const Matrix *src, Matrix *dst, i64 factor) {
     u8 *dst_data = (u8 *)dst->data;
     u8 *src_data = (u8 *)src->data;
 
-    for (u64 i = 0; i < src->height; i++) {
-        for (u64 j = 0; j < src->width; j++) {
-            for (u64 k = 0; k < factor; k++) {
-                for (u64 p = 0; p < factor; p++) {
+    for (i64 i = 0; i < src->height; i++) {
+        for (i64 j = 0; j < src->width; j++) {
+            for (i64 k = 0; k < factor; k++) {
+                for (i64 p = 0; p < factor; p++) {
                     dst_data[(factor * i + k) * dst->width + (factor * j + p)] =
                         src_data[i * src->width + j];
                 }
@@ -75,7 +72,7 @@ static void matrix_upscale_u8(const Matrix *src, Matrix *dst, u64 factor) {
     }
 }
 
-static void matrix_upscale(Matrix *src, u64 factor) {
+void matrix_upscale(Matrix *src, i64 factor) {
     Matrix dst = matrix_new(src->width * factor, src->height * factor,
                             src->matrix_type, false);
 
@@ -89,34 +86,47 @@ static void matrix_upscale(Matrix *src, u64 factor) {
     *src = dst;
 }
 
-static void matrix_downscale_u8(const Matrix *src, Matrix *dst, u64 factor) {
+static void matrix_downscale_u8(const Matrix *src, Matrix *dst, i64 factor) {
     u8 *dst_data = (u8 *)dst->data;
     u8 *src_data = (u8 *)src->data;
 
-    for (u64 i = 0; i < dst->height; i++) {
-        for (u64 j = 0; j < dst->width; j++) {
-            u64 sum = 0;
-            for (u64 k = 0; k < factor; k++) {
-                for (u64 p = 0; p < factor; p++) {
-                    sum += src_data[(factor * i + k) * src->width +
-                                    (factor * j + p)];
+    f32 factor_pow = (f32)(factor * factor);
+
+    i64 dst_width = dst->width;
+    i64 dst_height = dst->height;
+    i64 src_width = src->width;
+
+    // TODO: move loop to 'from dst_height - 1 to 0'
+    for (i64 i = 0; i < dst_height; i++) {
+        i64 factor_mult_i = factor * i;
+        i64 dst_width_mul_i = dst_width * i;
+
+        for (i64 j = 0; j < dst_width; j++) {
+            i64 dst_offset = dst_width_mul_i + j;
+            i64 factor_mult_j = factor * j;
+            i64 sum = 0;
+
+            for (i64 k = 0; k < factor; k++) {
+                i64 vertical_offset = (factor_mult_i + k) * src_width;
+
+                for (i64 p = 0; p < factor; p++) {
+                    sum += src_data[vertical_offset + (factor_mult_j + p)];
                 }
             }
-            dst_data[i * dst->width + j] =
-                (u8)roundf((f32)sum / (f32)(factor * factor));
+            dst_data[dst_offset] = (u8)roundf((f32)sum / factor_pow);
         }
     }
 }
 
-static void matrix_downscale_u16(const Matrix *src, Matrix *dst, u64 factor) {
+static void matrix_downscale_u16(const Matrix *src, Matrix *dst, i64 factor) {
     u16 *dst_data = (u16 *)dst->data;
     u16 *src_data = (u16 *)src->data;
 
-    for (u64 i = 0; i < dst->height; i++) {
-        for (u64 j = 0; j < dst->width; j++) {
-            u64 sum = 0;
-            for (u64 k = 0; k < factor; k++) {
-                for (u64 p = 0; p < factor; p++) {
+    for (i64 i = 0; i < dst->height; i++) {
+        for (i64 j = 0; j < dst->width; j++) {
+            i64 sum = 0;
+            for (i64 k = 0; k < factor; k++) {
+                for (i64 p = 0; p < factor; p++) {
                     sum += src_data[(factor * i + k) * src->width +
                                     (factor * j + p)];
                 }
@@ -127,7 +137,7 @@ static void matrix_downscale_u16(const Matrix *src, Matrix *dst, u64 factor) {
     }
 }
 
-static void matrix_downscale(Matrix *src, u64 factor) {
+void matrix_downscale(Matrix *src, i64 factor) {
     Matrix dst =
         matrix_new(src->width / factor, src->height / factor, U8_MATRIX, false);
 
@@ -138,75 +148,5 @@ static void matrix_downscale(Matrix *src, u64 factor) {
     }
 
     matrix_free(src);
-    *src = dst;
-}
-
-static void matrix_u8_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
-                             f32 cos_a) {
-    u8 *src_data = (u8 *)src->data;
-    u8 *dst_data = (u8 *)dst->data;
-
-    for (u64 i = 0; i < src->height; i++) {
-        for (u64 j = 0; j < src->width; j++) {
-
-            i64 old_x = (i64)src->width / 2 - (i64)j;
-            i64 old_y = (i64)src->height / 2 - (i64)i;
-
-            f32 new_x = (f32)old_x * cos_a - (f32)old_y * sin_a;
-            f32 new_y = (f32)old_y * cos_a + (f32)old_x * sin_a;
-
-            f32 new_j = (f32)src->width / 2.0f - new_x;
-            f32 new_i = (f32)src->height / 2.0f - new_y;
-
-            if ((u64)new_i < src->height && (u64)new_j < src->width) {
-                dst_data[(u64)new_i * src->width + (u64)new_j] =
-                    src_data[i * src->width + j];
-            }
-        }
-    }
-}
-
-static void matrix_u16_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
-                              f32 cos_a) {
-    u16 *src_data = (u16 *)src->data;
-    u16 *dst_data = (u16 *)dst->data;
-
-    for (u64 i = 0; i < src->height; i++) {
-        for (u64 j = 0; j < src->width; j++) {
-
-            i64 old_x = (i64)src->width / 2 - (i64)j;
-            i64 old_y = (i64)src->height / 2 - (i64)i;
-
-            f32 new_x = (f32)old_x * cos_a - (f32)old_y * sin_a;
-            f32 new_y = (f32)old_y * cos_a + (f32)old_x * sin_a;
-
-            f32 new_j = (f32)src->width / 2.0f - new_x;
-            f32 new_i = (f32)src->height / 2.0f - new_y;
-
-            if ((u64)new_i < src->height && (u64)new_j < src->width) {
-                dst_data[(u64)new_i * src->width + (u64)new_j] =
-                    src_data[i * src->width + j];
-            }
-        }
-    }
-}
-
-void matrix_rotate(Matrix *src, f32 degrees) {
-    Matrix dst =
-        matrix_new(src->width * 2, src->height * 2, src->matrix_type, true);
-    matrix_upscale(src, 2);
-
-    f32 cos_a = cosf(deg_to_rad(degrees));
-    f32 sin_a = sinf(deg_to_rad(degrees));
-
-    if (src->matrix_type == U8_MATRIX) {
-        matrix_u8_rotate(src, &dst, sin_a, cos_a);
-    } else {
-        matrix_u16_rotate(src, &dst, sin_a, cos_a);
-    }
-
-    matrix_free(src);
-    matrix_downscale(&dst, 2);
-
     *src = dst;
 }
