@@ -73,6 +73,12 @@ static void matrix_rotation_post_process(Matrix *src,
     case BILINEAR_INTER:
         benchmark(Bilinear interpolation) { matrix_bilinear_inter(src); }
         break;
+    case LANCZOS_INTER:
+        benchmark(Lanczos kernel interpolation) { matrix_lanczos_inter(src); }
+        break;
+    case AVG_INTER:
+        benchmark(Avg interpolation) { matrix_avg_inter(src); }
+        break;
     case NONE_PROCESS:
         return;
     }

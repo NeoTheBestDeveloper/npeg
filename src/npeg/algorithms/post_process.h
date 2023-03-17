@@ -4,6 +4,8 @@
 typedef enum {
     NONE_PROCESS,
     BILINEAR_INTER,
+    LANCZOS_INTER,
+    AVG_INTER,
     UP_DOWN_SCALE,
 } PostProcess;
 
