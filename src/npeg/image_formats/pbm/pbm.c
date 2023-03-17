@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../math/matrix/matrix.h"
+#include "../../math/matrix.h"
 #include "../img.h"
 #include "benchmark.h"
 #include "die.h"

@@ -1,7 +1,8 @@
 #ifndef H_IMG
 #define H_IMG
 
-#include "../math/matrix/matrix.h"
+#include "../algorithms/post_process.h"
+#include "../math/matrix.h"
 
 typedef enum {
     PNG,
@@ -22,7 +23,7 @@ typedef struct {
 Img *img_open(const char *path);
 void img_free(Img *img);
 
-void img_rotate(Img *img, f32 degrees);
+void img_rotate(Img *img, f32 degrees, PostProcess post_process);
 void img_save(const Img *img, const char *path);
 
 #endif // !H_IMG

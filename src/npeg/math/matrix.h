@@ -20,7 +20,4 @@ Matrix matrix_new(i64 width, i64 height, MatrixType matrix_type,
                   bool fill_zeroes);
 void matrix_free(Matrix *matrix);
 
-void matrix_downscale(Matrix *src, i64 factor);
-void matrix_upscale(Matrix *src, i64 factor);
-
 #endif // !H_MATRIX

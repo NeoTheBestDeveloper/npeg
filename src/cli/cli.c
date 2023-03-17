@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <string.h>
 
 #include "../npeg/npeg.h"
@@ -27,7 +26,7 @@ void process_image(Arg *args, i32 args_count) {
 
     for (i32 i = 0; i < args_count; i++) {
         if (0 == strcmp("rotate", args[i].full_name) && args[i].data != NULL) {
-            img_rotate(img, *(f32 *)args[i].data);
+            img_rotate(img, *(f32 *)args[i].data, BILINEAR_INTER);
         }
     }
 

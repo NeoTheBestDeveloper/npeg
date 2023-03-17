@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include "../math/matrix/matrix.h"
+#include "../math/matrix.h"
 #include "../math/trig.h"
 #include "algorithms.h"
 #include "benchmark.h"
@@ -64,11 +64,29 @@ static void matrix_u16_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
     }
 }
 
-void matrix_rotate(Matrix *src, f32 degrees) {
-    Matrix dst = matrix_new(src->width * SCALE_FACTOR,
-                            src->height * SCALE_FACTOR, src->matrix_type, true);
+static void matrix_rotation_post_process(Matrix *src,
+                                         PostProcess post_process) {
+    switch (post_process) {
+    case UP_DOWN_SCALE:
+        benchmark(matrix downscale) { matrix_downscale(src, SCALE_FACTOR); }
+        break;
+    case BILINEAR_INTER:
+        benchmark(Bilinear interpolation) { matrix_bilinear_inter(src); }
+        break;
+    case NONE_PROCESS:
+        return;
+    }
+}
 
-    benchmark(matrix upscale) { matrix_upscale(src, SCALE_FACTOR); }
+void matrix_rotate(Matrix *src, f32 degrees, PostProcess post_process) {
+    Matrix dst;
+    if (post_process == UP_DOWN_SCALE) {
+        dst = matrix_new(src->width * SCALE_FACTOR, src->height * SCALE_FACTOR,
+                         src->matrix_type, true);
+        benchmark(matrix upscale) { matrix_upscale(src, SCALE_FACTOR); }
+    } else {
+        dst = matrix_new(src->width, src->height, src->matrix_type, true);
+    }
 
     f32 cos_a = cosf(deg_to_rad(degrees));
     f32 sin_a = sinf(deg_to_rad(degrees));
@@ -82,7 +100,7 @@ void matrix_rotate(Matrix *src, f32 degrees) {
     }
 
     matrix_free(src);
-    benchmark(matrix downscale) { matrix_downscale(&dst, SCALE_FACTOR); }
+    matrix_rotation_post_process(&dst, post_process);
 
     *src = dst;
 }

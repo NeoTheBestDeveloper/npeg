@@ -142,10 +142,10 @@ void img_free(Img *img) {
     _img_free(img);
 }
 
-void img_rotate(Img *img, f32 degrees) {
+void img_rotate(Img *img, f32 degrees, PostProcess post_process) {
     benchmark(img rotation) {
         for (u8 i = 0; i < img->channels_count; i++) {
-            matrix_rotate(img->channels + i, degrees);
+            matrix_rotate(img->channels + i, degrees, post_process);
         }
     }
 }
