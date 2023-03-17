@@ -12,6 +12,7 @@
 #include "pbm.h"
 
 #define SIZE_BUFFER_SIZE (64)
+#define BLOCK_SIZE (16 * 1024)
 
 static inline u8 digit_to_chr(u8 digit) { return digit + 48; }
 static inline u8 chr_to_digit(u8 digit) { return digit - 48; }
@@ -49,7 +50,6 @@ static void read_size(i64 *width, i64 *height, i32 fin) {
 }
 
 static void read_data(PbmImg *img, i32 fin) {
-    // Add reading by 8k blocks.
     char new_line;
     read(fin, &new_line, 1); // skip whitespace symbol.
     i64 width, height;
@@ -57,15 +57,17 @@ static void read_data(PbmImg *img, i32 fin) {
     read_size(&width, &height, fin);
     img->img.channels = (Matrix *)malloc(sizeof(Matrix));
     img->img.channels[0] = matrix_new(width, height, U8_MATRIX, false);
-    u8 *data = (u8 *)img->img.channels->data;
+    u8 *img_data = (u8 *)img->img.channels->data;
 
-    for (i64 i = 0; i < img->img.channels->height; i++) {
-        for (i64 j = 0; j < img->img.channels->width; j++) {
-            u8 byte;
-            do {
-                read(fin, &byte, 1);
-            } while (isspace(byte));
-            data[i * img->img.channels->width + j] = chr_to_digit(byte);
+    u8 buf[BLOCK_SIZE];
+    i64 buf_size;
+    i64 img_data_top = 0;
+
+    while ((buf_size = read(fin, buf, BLOCK_SIZE)) != 0) {
+        for (i64 i = 0; i < buf_size; ++i) {
+            if (!isspace(buf[i])) {
+                img_data[img_data_top++] = chr_to_digit(buf[i]);
+            }
         }
     }
 }
@@ -107,13 +109,22 @@ static void write_size(const PbmImg *img, i32 fout) {
 }
 
 static void write_data(const PbmImg *img, i32 fout) {
-    u8 buf[2] = {'0', ' '};
+    u8 buf[BLOCK_SIZE];
+    u64 buf_top = 0;
+    i64 img_size = img->img.channels->height * img->img.channels->width;
+
     u8 *data = (u8 *)img->img.channels->data;
-    for (i64 i = 0; i < img->img.channels->height; i++) {
-        for (i64 j = 0; j < img->img.channels->width; j++) {
-            buf[0] = digit_to_chr(data[i * img->img.channels->width + j]);
-            write(fout, buf, 2);
+
+    for (i64 i = 0; i < img_size; i++) {
+        if (buf_top == BLOCK_SIZE) {
+            write(fout, buf, buf_top);
+            buf_top = 0;
         }
+        buf[buf_top++] = digit_to_chr(data[i]);
+        buf[buf_top++] = ' ';
+    }
+    if (buf_top) {
+        write(fout, buf, buf_top);
     }
 }
 

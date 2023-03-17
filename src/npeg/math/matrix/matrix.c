@@ -73,7 +73,7 @@ static void matrix_upscale_u8(const Matrix *src, Matrix *dst, i64 factor) {
 
     i64 src_height = src->height;
     i64 src_width = src->width;
-    i64 dst_width = src->width;
+    i64 dst_width = dst->width;
 
     for (i64 i = 0; i < src_height; i++) {
         i64 factor_mult_i = factor * i;

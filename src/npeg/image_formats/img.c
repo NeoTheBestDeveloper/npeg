@@ -1,6 +1,5 @@
 #include <fcntl.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -144,8 +143,10 @@ void img_free(Img *img) {
 }
 
 void img_rotate(Img *img, f32 degrees) {
-    for (u8 i = 0; i < img->channels_count; i++) {
-        matrix_rotate(img->channels + i, degrees);
+    benchmark(img rotation) {
+        for (u8 i = 0; i < img->channels_count; i++) {
+            matrix_rotate(img->channels + i, degrees);
+        }
     }
 }
 
