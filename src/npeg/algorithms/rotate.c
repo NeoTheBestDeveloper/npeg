@@ -3,32 +3,37 @@
 #include "../math/matrix/matrix.h"
 #include "../math/trig.h"
 #include "algorithms.h"
+#include "benchmark.h"
 #include "types.h"
+
+#define SCALE_FACTOR (2)
 
 static void matrix_u8_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
                              f32 cos_a) {
     u8 *src_data = (u8 *)src->data;
     u8 *dst_data = (u8 *)dst->data;
 
-    f32 height_half = src->height >> 1;
-    f32 width_half = src->width >> 1;
+    f32 height_half = (f32)(src->height >> 1);
+    f32 width_half = (f32)(src->width >> 1);
+    i64 src_height = src->height;
+    i64 src_width = src->width;
 
-    for (i64 i = src->height - 1; i != 0; --i) {
-        f32 old_y = height_half - i;
-        i64 raws_offset = i * src->width;
+    for (i64 i = src_height - 1; i != 0; --i) {
+        f32 old_y = height_half - (f32)i;
+        i64 raws_offset = i * src_width;
 
-        for (i64 j = src->width - 1; j != 0; --j) {
-            f32 old_x = width_half - j;
+        for (i64 j = src_width - 1; j != 0; --j) {
+            f32 old_x = width_half - (f32)j;
 
             f32 new_x = old_x * cos_a - old_y * sin_a;
             f32 new_y = old_y * cos_a + old_x * sin_a;
 
-            u64 new_j = (u64)((f32)width_half - new_x);
-            u64 new_i = (u64)((f32)height_half - new_y);
+            i64 new_j = (i64)(width_half - new_x);
+            i64 new_i = (i64)(height_half - new_y);
 
-            if (new_i < src->height && new_j < src->width) {
-                dst_data[new_i * src->width + new_j] =
-                    src_data[raws_offset + j];
+            if (new_i < src_height && new_j < src_width && new_j > 0 &&
+                new_i > 0) {
+                dst_data[new_i * src_width + new_j] = src_data[raws_offset + j];
             }
         }
     }
@@ -60,21 +65,24 @@ static void matrix_u16_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
 }
 
 void matrix_rotate(Matrix *src, f32 degrees) {
-    Matrix dst =
-        matrix_new(src->width * 2, src->height * 2, src->matrix_type, true);
-    matrix_upscale(src, 2);
+    Matrix dst = matrix_new(src->width * SCALE_FACTOR,
+                            src->height * SCALE_FACTOR, src->matrix_type, true);
+
+    benchmark(matrix upscale) { matrix_upscale(src, SCALE_FACTOR); }
 
     f32 cos_a = cosf(deg_to_rad(degrees));
     f32 sin_a = sinf(deg_to_rad(degrees));
 
-    if (src->matrix_type == U8_MATRIX) {
-        matrix_u8_rotate(src, &dst, sin_a, cos_a);
-    } else {
-        matrix_u16_rotate(src, &dst, sin_a, cos_a);
+    benchmark(matrix rotation) {
+        if (src->matrix_type == U8_MATRIX) {
+            matrix_u8_rotate(src, &dst, sin_a, cos_a);
+        } else {
+            matrix_u16_rotate(src, &dst, sin_a, cos_a);
+        }
     }
 
     matrix_free(src);
-    matrix_downscale(&dst, 2);
+    benchmark(matrix downscale) { matrix_downscale(&dst, SCALE_FACTOR); }
 
     *src = dst;
 }

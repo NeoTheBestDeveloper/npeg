@@ -14,13 +14,13 @@ static void arg_free(Arg *arg) {
 }
 
 static void action_free(Action *action) {
-    for (u64 i = 0; i < action->args_count; i++) {
+    for (i32 i = 0; i < action->args_count; i++) {
         arg_free(action->args + i);
     }
 }
 
 void args_parser_free(ArgsParser *parser) {
-    for (u64 i = 0; i < parser->actions_count; i++) {
+    for (i32 i = 0; i < parser->actions_count; i++) {
         action_free(parser->actions + i);
     }
 }
@@ -38,8 +38,8 @@ Arg arg_new(const char *short_name, const char *full_name, ArgType arg_type,
     return arg;
 }
 
-Action action_new(Arg *args, u64 args_count,
-                  void (*handler)(Arg *args, u64 args_count)) {
+Action action_new(Arg *args, i32 args_count,
+                  void (*handler)(Arg *args, i32 args_count)) {
     Action action = {
         .args = args,
         .handler = handler,
@@ -49,7 +49,7 @@ Action action_new(Arg *args, u64 args_count,
     return action;
 }
 
-ArgsParser args_parser_new(Action *actions, u64 actions_count, i32 argc,
+ArgsParser args_parser_new(Action *actions, i32 actions_count, i32 argc,
                            char **argv) {
     ArgsParser args_parser = {
         .actions = actions,
@@ -70,10 +70,10 @@ static bool cmp_arg(Arg arg, const char *str_arg) {
 }
 
 /* Return -1 if action was not recognized.*/
-static i64 guess_action_id(ArgsParser *args_parser) {
+static i32 guess_action_id(ArgsParser *args_parser) {
     const char *first_arg = args_parser->argv[1];
 
-    for (i64 i = 0; i < args_parser->actions_count; i++) {
+    for (i32 i = 0; i < args_parser->actions_count; i++) {
         if (cmp_arg(args_parser->actions[i].args[0], first_arg)) {
             return i;
         }
@@ -81,8 +81,8 @@ static i64 guess_action_id(ArgsParser *args_parser) {
     return -1;
 }
 
-static i64 find_arg(const char *str_arg, const Action *action) {
-    for (i64 i = 0; i < action->args_count; i++) {
+static i32 find_arg(const char *str_arg, const Action *action) {
+    for (i32 i = 0; i < action->args_count; i++) {
         if (cmp_arg(action->args[i], str_arg)) {
             return i;
         }
@@ -183,7 +183,7 @@ static void args_parser_parse_action(ArgsParser *parser) {
 }
 
 static void validate_required_args(ArgsParser *args_parser) {
-    for (u64 i = 0; i < args_parser->current_action->args_count; i++) {
+    for (i32 i = 0; i < args_parser->current_action->args_count; i++) {
         if (args_parser->current_action->args[i].data == NULL &&
             args_parser->current_action->args[i].is_required) {
             die("Error: argument '--%s' is_required.\n%s",

@@ -3,7 +3,7 @@
 
 #include "args_parser.h"
 
-void process_image(Arg *args, u64 args_count);
-void get_help(Arg *args, u64 args_count);
+void process_image(Arg *args, i32 args_count);
+void get_help(Arg *args, i32 args_count);
 
 #endif // !H_CLI

@@ -1,10 +1,12 @@
 #include <fcntl.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "../algorithms/algorithms.h"
+#include "benchmark.h"
 #include "die.h"
 #include "img.h"
 #include "img_magics.h"
@@ -96,9 +98,12 @@ Img *img_open(const char *path) {
     ImageFormat format = guess_image_format(fin);
     close(fin);
 
+    Img *res;
+
     switch (format) {
     case PBM:
-        return pbm_img_open(path);
+        res = pbm_img_open(path);
+        break;
     case PNG:
     case JPG:
     case PGM:
@@ -109,6 +114,8 @@ Img *img_open(const char *path) {
     default:
         die("Error: unknown image format.\n", NULL)
     }
+
+    return res;
 }
 
 static void _img_free(Img *img) {
@@ -143,20 +150,22 @@ void img_rotate(Img *img, f32 degrees) {
 }
 
 void img_save(const Img *img, const char *path) {
-    i32 fout = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+    benchmark(img saving) {
+        i32 fout = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
 
-    switch (img->format) {
-    case PBM:
-        pbm_img_save((const PbmImg *)img, fout);
-        break;
-    case PNG:
-    case JPG:
-    case PGM:
-    case PAM:
-    case PPM:
-        die("Error: this image format (%s) is not supported yet.\n",
-            format_to_text(img->format));
+        switch (img->format) {
+        case PBM:
+            pbm_img_save((const PbmImg *)img, fout);
+            break;
+        case PNG:
+        case JPG:
+        case PGM:
+        case PAM:
+        case PPM:
+            die("Error: this image format (%s) is not supported yet.\n",
+                format_to_text(img->format));
+        }
+
+        close(fout);
     }
-
-    close(fout);
 }

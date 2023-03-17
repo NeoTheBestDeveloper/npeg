@@ -44,12 +44,23 @@ static void matrix_upscale_u16(const Matrix *src, Matrix *dst, i64 factor) {
     u16 *dst_data = (u16 *)dst->data;
     u16 *src_data = (u16 *)src->data;
 
-    for (i64 i = 0; i < src->height; i++) {
-        for (i64 j = 0; j < src->width; j++) {
+    i64 src_height = src->height;
+    i64 src_width = src->width;
+    i64 dst_width = src->width;
+
+    for (i64 i = 0; i < src_height; i++) {
+        i64 factor_mult_i = factor * i;
+        i64 raws_src_offset = i * src_width;
+
+        for (i64 j = 0; j < src_width; j++) {
+            i64 factor_mult_j = factor * j;
+            i64 src_offset = raws_src_offset + j;
+
             for (i64 k = 0; k < factor; k++) {
+                i64 raws_dst_offset = (factor_mult_i + k) * dst_width;
                 for (i64 p = 0; p < factor; p++) {
-                    dst_data[(factor * i + k) * dst->width + (factor * j + p)] =
-                        src_data[i * src->width + j];
+                    dst_data[raws_dst_offset + (factor_mult_j + p)] =
+                        src_data[src_offset];
                 }
             }
         }
@@ -60,12 +71,23 @@ static void matrix_upscale_u8(const Matrix *src, Matrix *dst, i64 factor) {
     u8 *dst_data = (u8 *)dst->data;
     u8 *src_data = (u8 *)src->data;
 
-    for (i64 i = 0; i < src->height; i++) {
-        for (i64 j = 0; j < src->width; j++) {
+    i64 src_height = src->height;
+    i64 src_width = src->width;
+    i64 dst_width = src->width;
+
+    for (i64 i = 0; i < src_height; i++) {
+        i64 factor_mult_i = factor * i;
+        i64 raws_src_offset = i * src_width;
+
+        for (i64 j = 0; j < src_width; j++) {
+            i64 factor_mult_j = factor * j;
+            i64 src_offset = raws_src_offset + j;
+
             for (i64 k = 0; k < factor; k++) {
+                i64 raws_dst_offset = (factor_mult_i + k) * dst_width;
                 for (i64 p = 0; p < factor; p++) {
-                    dst_data[(factor * i + k) * dst->width + (factor * j + p)] =
-                        src_data[i * src->width + j];
+                    dst_data[raws_dst_offset + (factor_mult_j + p)] =
+                        src_data[src_offset];
                 }
             }
         }

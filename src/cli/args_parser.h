@@ -26,25 +26,25 @@ typedef struct {
 action type user by first agument inside action. */
 typedef struct {
     Arg *args;
-    void (*handler)(Arg *args, u64 args_count);
-    u64 args_count;
+    void (*handler)(Arg *args, i32 args_count);
+    i32 args_count;
 } Action;
 
 typedef struct {
     Action *actions;
-    u64 actions_count;
-    char **argv;
     Action *current_action;
+    char **argv;
+    i32 actions_count;
     i32 argc;
 } ArgsParser;
 
 Arg arg_new(const char *short_name, const char *full_name, ArgType arg_type,
             bool is_required);
 
-Action action_new(Arg *args, u64 args_count,
-                  void (*handler)(Arg *args, u64 args_count));
+Action action_new(Arg *args, i32 args_count,
+                  void (*handler)(Arg *args, i32 args_count));
 
-ArgsParser args_parser_new(Action *actions, u64 actions_count, i32 argc,
+ArgsParser args_parser_new(Action *actions, i32 actions_count, i32 argc,
                            char **argv);
 void args_parser_free(ArgsParser *parser);
 void args_parser_parse(ArgsParser *args_parser);

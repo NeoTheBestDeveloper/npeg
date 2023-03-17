@@ -7,10 +7,14 @@
 
 #include "../../math/matrix/matrix.h"
 #include "../img.h"
+#include "benchmark.h"
 #include "die.h"
 #include "pbm.h"
 
-#define SIZE_BUFFER_SIZE 32
+#define SIZE_BUFFER_SIZE (64)
+
+static inline u8 digit_to_chr(u8 digit) { return digit + 48; }
+static inline u8 chr_to_digit(u8 digit) { return digit - 48; }
 
 static bool is_ascii(const char *magic) { return 0 == strncmp(magic, "P1", 2); }
 
@@ -61,7 +65,7 @@ static void read_data(PbmImg *img, i32 fin) {
             do {
                 read(fin, &byte, 1);
             } while (isspace(byte));
-            data[i * img->img.channels->width + j] = byte - '0';
+            data[i * img->img.channels->width + j] = chr_to_digit(byte);
         }
     }
 }
@@ -69,20 +73,21 @@ static void read_data(PbmImg *img, i32 fin) {
 Img *pbm_img_open(const char *path) {
     PbmImg *new_img = (PbmImg *)malloc(sizeof(PbmImg));
 
-    i32 fin = open(path, O_RDONLY);
+    benchmark(img reading) {
+        i32 fin = open(path, O_RDONLY);
 
-    char magic[2];
-    read(fin, magic, 2);
+        char magic[2];
+        read(fin, magic, 2);
 
-    new_img->is_ascii = is_ascii(magic);
-    new_img->img.max_colors = 2;
-    new_img->img.channels_count = 1;
-    new_img->img.format = PBM;
+        new_img->is_ascii = is_ascii(magic);
+        new_img->img.max_colors = 2;
+        new_img->img.channels_count = 1;
+        new_img->img.format = PBM;
 
-    read_data(new_img, fin);
+        read_data(new_img, fin);
 
-    close(fin);
-
+        close(fin);
+    }
     return &new_img->img;
 }
 
@@ -95,25 +100,25 @@ static void write_magic(const PbmImg *img, i32 fout) {
 }
 
 static void write_size(const PbmImg *img, i32 fout) {
-    char buf[SIZE_BUFFER_SIZE];
-    sprintf(buf, "%lu %lu\n", img->img.channels->width,
+    char buf[SIZE_BUFFER_SIZE] = {0};
+    sprintf(buf, "%li %li\n", img->img.channels->width,
             img->img.channels->height);
     write(fout, buf, strlen(buf));
 }
 
 static void write_data(const PbmImg *img, i32 fout) {
-    char buf[2] = {'0', ' '};
+    u8 buf[2] = {'0', ' '};
     u8 *data = (u8 *)img->img.channels->data;
     for (i64 i = 0; i < img->img.channels->height; i++) {
         for (i64 j = 0; j < img->img.channels->width; j++) {
-            buf[0] = data[i * img->img.channels->width + j] + '0';
+            buf[0] = digit_to_chr(data[i * img->img.channels->width + j]);
             write(fout, buf, 2);
         }
     }
 }
 
 void pbm_img_save(const PbmImg *img, i32 fout) {
-    // write_magic(img, fout);
-    // write_size(img, fout);
-    // write_data(img, fout);
+    write_magic(img, fout);
+    write_size(img, fout);
+    write_data(img, fout);
 }

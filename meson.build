@@ -1,15 +1,16 @@
 project('npeg', 'c',
   version: '0.0.0',
   default_options: [
-    'warning_level=3',
+    'warning_level=everything',
     'c_std=c11',
     'buildtype=debug',
     'b_sanitize=address,undefined',
+    'optimization=3',
     'b_lundef=false'
 ])
 
 subdir('src')
-incdir = include_directories('src/include')
+incdir = include_directories('include')
 
 cc = meson.get_compiler('c')
 warning_flags = [
@@ -30,6 +31,10 @@ warning_flags = [
   '-Wunused-result',
   '-Wvariadic-macros',
   '-Wno-format-extra-args',
+  '-Wno-missing-prototypes',
+  '-Wno-padded',
+  '-Wno-missing-declarations',
+  '-Wno-suggest-attribute=const',
 ]
 
 if get_option('buildtype').startswith('debug')
