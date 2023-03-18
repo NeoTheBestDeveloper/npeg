@@ -1,4 +1,7 @@
+#include <immintrin.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "../math/matrix.h"
 #include "../math/trig.h"
@@ -39,6 +42,17 @@ static void matrix_u8_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
     }
 }
 
+static void matrix_u8_rotate_avx(const Matrix *src, Matrix *dst, f32 sin_a,
+                                 f32 cos_a) {
+    u8 *src_data = (u8 *)src->data;
+    u8 *dst_data = (u8 *)dst->data;
+
+    f32 height_half = (f32)src->height / 2.f;
+    f32 width_half = (f32)src->width / 2.f;
+    i64 src_height = src->height;
+    i64 src_width = src->width;
+    i64 data_size = src_height * src_width;
+}
 static void matrix_u16_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
                               f32 cos_a) {
     u16 *src_data = (u16 *)src->data;
@@ -99,7 +113,7 @@ void matrix_rotate(Matrix *src, f32 degrees, PostProcess post_process) {
 
     benchmark(matrix rotation) {
         if (src->matrix_type == U8_MATRIX) {
-            matrix_u8_rotate(src, &dst, sin_a, cos_a);
+            matrix_u8_rotate_avx(src, &dst, sin_a, cos_a);
         } else {
             matrix_u16_rotate(src, &dst, sin_a, cos_a);
         }

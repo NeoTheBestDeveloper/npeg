@@ -37,11 +37,17 @@ warning_flags = [
   '-Wno-suggest-attribute=const',
 ]
 
+avx_flags = [
+  '-mfma',
+  '-mavx2',
+]
+
 if get_option('buildtype').startswith('debug')
   add_project_arguments('-DDEBUG', language : 'c')
 endif
 
 add_project_arguments(cc.get_supported_arguments(warning_flags), language: 'c')
+add_project_arguments(cc.get_supported_arguments(avx_flags), language: 'c')
 
 cc = meson.get_compiler('c')
 math_dep = cc.find_library('m', required : true)

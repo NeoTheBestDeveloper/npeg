@@ -6,7 +6,13 @@
 #include "types.h"
 
 #define LANCZOS_A 20000.f
-#define AVG_THRESHOLD 0.85f
+
+// TODO: setup more threshold and use AVG interpolation on big pictures and
+// scale interpolation on small.
+// TODO: USE AVX INSTRUCTIONS.
+// TODO: Threads.
+
+#define AVG_THRESHOLD 0.65f
 
 static void matrix_u16_bilinear_inter(const Matrix *src, Matrix *dst) {
     u16 *src_data = src->data;
