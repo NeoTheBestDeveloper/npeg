@@ -1,5 +1,4 @@
-#include "img.h"
-#include "pbm/pbm.h"
+#include "../pbm/pbm.h"
 
 // For python libary, because ctypes cannots cast pointer of parent sructure to
 // pointer of children structure.

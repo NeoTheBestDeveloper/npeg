@@ -1,14 +1,9 @@
 #include <math.h>
-#include <stdio.h>
 
 #include "../math/matrix.h"
 #include "../math/trig.h"
 #include "types.h"
 
-#define LANCZOS_A 20000.f
-
-// TODO: setup more threshold and use AVG interpolation on big pictures and
-// scale interpolation on small.
 // TODO: USE AVX INSTRUCTIONS.
 // TODO: Threads.
 
@@ -124,57 +119,52 @@ void matrix_bilinear_inter(Matrix *src) {
     *src = dst;
 }
 
-static inline f32 calc_lanczos_kernel(f32 x) {
-    if (x == 0.0f) {
-        return 1;
-    } else if (x < LANCZOS_A && x > -LANCZOS_A) {
-        f32 pi_mult_x = PI * x;
-        return LANCZOS_A * sinf(pi_mult_x) * sinf(pi_mult_x / LANCZOS_A) /
-               (PI_2_POW * x * x);
-    }
-    return 0;
-}
+// static inline f32 calc_lanczos_kernel(f32 x) {
+//     if (x == 0.0f) {
+//         return 1;
+//     } else if (x < LANCZOS_A && x > -LANCZOS_A) {
+//         f32 pi_mult_x = PI * x;
+//         return LANCZOS_A * sinf(pi_mult_x) * sinf(pi_mult_x / LANCZOS_A) /
+//                (PI_2_POW * x * x);
+//     }
+//     return 0;
+// }
 
-void matrix_u8_lanczos_inter(const Matrix *src, Matrix *dst) {
-    u8 *src_data = (u8 *)src->data;
-    u8 *dst_data = (u8 *)dst->data;
-
-    i64 src_height = src->height;
-    i64 src_width = src->width;
-
-    for (i64 i = 1; i < src_height - 1; i++) {
-        i64 new_i = (i64)calc_lanczos_kernel((f32)i);
-        for (i64 j = 1; j < src_width - 1; j++) {
-            i64 new_j = (i64)calc_lanczos_kernel((f32)j);
-            if (new_i > 0 && new_i < src_height && new_j > 0 &&
-                new_j > src_width)
-                dst_data[src_width * new_i + new_j] =
-                    src_data[src_width * i + j];
-        }
-    }
-}
-
-void matrix_u16_lanczos_inter(const Matrix *src, Matrix *dst) {}
-
-void matrix_lanczos_inter(Matrix *src) {
-    Matrix dst = matrix_new(src->width, src->height, src->matrix_type, true);
-
-    if (src->matrix_type == U8_MATRIX) {
-        matrix_u8_lanczos_inter(src, &dst);
-    } else {
-        matrix_u16_lanczos_inter(src, &dst);
-    }
-
-    matrix_free(src);
-
-    *src = dst;
-}
-
-static inline u8 avg_round_u8(f32 avg) {
-    if (avg > AVG_THRESHOLD)
-        return 1;
-    return 0;
-}
+// void matrix_u8_lanczos_inter(const Matrix *src, Matrix *dst) {
+//     u8 *src_data = (u8 *)src->data;
+//     u8 *dst_data = (u8 *)dst->data;
+//
+//     i64 src_height = src->height;
+//     i64 src_width = src->width;
+//
+//     for (i64 i = 1; i < src_height - 1; i++) {
+//         i64 new_i = (i64)calc_lanczos_kernel((f32)i);
+//         for (i64 j = 1; j < src_width - 1; j++) {
+//             i64 new_j = (i64)calc_lanczos_kernel((f32)j);
+//             if (new_i > 0 && new_i < src_height && new_j > 0 &&
+//                 new_j > src_width)
+//                 dst_data[src_width * new_i + new_j] =
+//                     src_data[src_width * i + j];
+//         }
+//     }
+// }
+//
+// void matrix_u16_lanczos_inter(const Matrix *src, Matrix *dst) {}
+//
+// void matrix_lanczos_inter(Matrix *src) {
+//     Matrix dst = matrix_new(src->width, src->height, src->matrix_type, true);
+//
+//     if (src->matrix_type == U8_MATRIX) {
+//         matrix_u8_lanczos_inter(src, &dst);
+//     } else {
+//         matrix_u16_lanczos_inter(src, &dst);
+//     }
+//
+//     matrix_free(src);
+//
+//     *src = dst;
+// }
+//
 
 void matrix_u8_avg_inter(const Matrix *src, Matrix *dst) {
     u8 *src_data = (u8 *)src->data;
@@ -205,7 +195,34 @@ void matrix_u8_avg_inter(const Matrix *src, Matrix *dst) {
     }
 }
 
-void matrix_u16_avg_inter(const Matrix *src, Matrix *dst) {}
+void matrix_u16_avg_inter(const Matrix *src, Matrix *dst) {
+    u16 *src_data = (u16 *)src->data;
+    u16 *dst_data = (u16 *)dst->data;
+
+    i64 src_height = src->height;
+    i64 src_width = src->width;
+
+    for (i64 i = 1; i < src_height - 1; ++i) {
+        i64 vertical_offset = i * src_width;
+        for (i64 j = 1; j < src_width - 1; ++j) {
+            i64 S = src_data[vertical_offset + j] +
+                    src_data[vertical_offset + j + 1] +
+                    src_data[vertical_offset + j - 1] +
+                    src_data[vertical_offset + src_width + j] +
+                    src_data[vertical_offset - src_width + j] +
+                    src_data[vertical_offset + src_width + j + 1] +
+                    src_data[vertical_offset + src_width + j - 1] +
+                    src_data[vertical_offset - src_width + j + 1] +
+                    src_data[vertical_offset - src_width + j - 1];
+            f32 avg = (f32)S / 9.0f;
+            if (avg > AVG_THRESHOLD) {
+                dst_data[vertical_offset + j] = 1;
+            } else {
+                dst_data[vertical_offset + j] = src_data[vertical_offset + j];
+            }
+        }
+    }
+}
 
 void matrix_avg_inter(Matrix *src) {
     Matrix dst = matrix_new(src->width, src->height, src->matrix_type, true);

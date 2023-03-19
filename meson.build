@@ -4,7 +4,7 @@ project('npeg', 'c',
     'warning_level=3',
     'c_std=c11',
     'buildtype=debug',
-    # 'b_sanitize=address,undefined',
+    'b_sanitize=address,undefined',
     'optimization=3',
     'b_lundef=false'
 ])

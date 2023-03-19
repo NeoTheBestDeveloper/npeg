@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 
 #include "die.h"
 #include "matrix.h"
@@ -36,4 +37,11 @@ Matrix matrix_new(i64 width, i64 height, MatrixType matrix_type,
     return matrix;
 }
 
+Matrix matrix_copy(const Matrix *src) {
+    Matrix dst = matrix_new(src->width, src->height, src->matrix_type, false);
+
+    memcpy(dst.data, src->data, (u64)(src->height * src->width));
+
+    return dst;
+}
 void matrix_free(Matrix *matrix) { free(matrix->data); }

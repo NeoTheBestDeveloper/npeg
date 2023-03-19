@@ -1,12 +1,11 @@
 subdir('math')
-subdir('image_formats')
+subdir('img')
 subdir('algorithms')
 
 npeg_sources = files(
-  'npeg.c',
 )
 
 npeg_sources += math_sources
-npeg_sources += image_formats_sources
+npeg_sources += img_sources
 npeg_sources += algorithms_sources
 
