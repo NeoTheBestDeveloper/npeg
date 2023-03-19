@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# [tool.hatch.build]
+# include = [
+#     "npeg/*.py",
+#     "npeg/*.so",
+# ]
+
+[tool.hatch.build]
+ignore-vcs = true
+
+
+[project]
+name = "npeg"
+version = "0.0.1"
+authors = [
+  { name="Nikulin Oleg", email="kiankasey91@gmail.com" },
+]
+description = "Small library for image manipulations."
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: Unix",
+]

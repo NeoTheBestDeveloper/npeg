@@ -1,13 +1,18 @@
 from enum import Enum
 from ctypes import Structure, c_int, c_int64, c_void_p
 
+__all__ = (
+    "MatrixType",
+    "MatrixStruct",
+)
+
 
 class MatrixType(Enum):
     U8_MATRIX = 0
     U16_MATRIX = 1
 
 
-class Matrix(Structure):
+class MatrixStruct(Structure):
     _fields_ = [
         ("height", c_int64),
         ("width", c_int64),

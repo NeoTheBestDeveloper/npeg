@@ -1,4 +1,5 @@
 build
+release_build
 .cache
 cache
 assets
@@ -10,3 +11,6 @@ assets
 *.jpg
 optimization.md
 __pycache__
+dist 
+*.egg-info
+*.so
