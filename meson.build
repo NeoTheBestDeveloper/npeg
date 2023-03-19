@@ -1,11 +1,11 @@
 project('npeg', 'c',
   version: '0.0.0',
   default_options: [
-    'warning_level=everything',
+    'warning_level=3',
     'c_std=c11',
     'buildtype=debug',
     'b_sanitize=address,undefined',
-    'optimization=3',
+    'optimization=0',
     'b_lundef=false'
 ])
 
@@ -35,6 +35,7 @@ warning_flags = [
   '-Wno-padded',
   '-Wno-missing-declarations',
   '-Wno-suggest-attribute=const',
+  '-Wno-declaration-after-statement',
 ]
 
 avx_flags = [
@@ -52,4 +53,5 @@ add_project_arguments(cc.get_supported_arguments(avx_flags), language: 'c')
 cc = meson.get_compiler('c')
 math_dep = cc.find_library('m', required : true)
 
-executable('npeg', sources, include_directories: incdir, dependencies : math_dep)
+executable('npeg', sources, include_directories: incdir, dependencies: math_dep)
+shared_library('npeg', npeg_sources, include_directories: incdir, dependencies: math_dep)

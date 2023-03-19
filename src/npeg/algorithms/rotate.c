@@ -49,10 +49,54 @@ static void matrix_u8_rotate_avx(const Matrix *src, Matrix *dst, f32 sin_a,
 
     f32 height_half = (f32)src->height / 2.f;
     f32 width_half = (f32)src->width / 2.f;
+
     i64 src_height = src->height;
     i64 src_width = src->width;
-    i64 data_size = src_height * src_width;
+
+    __m256 _old_x_offsets =
+        _mm256_setr_ps(0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f);
+
+    __m256 _cos_a = _mm256_set1_ps(cos_a);
+    __m256 _sin_a = _mm256_set1_ps(sin_a);
+
+    __m256 _height_half = _mm256_set1_ps(height_half);
+    __m256 _width_half = _mm256_set1_ps(width_half);
+
+    for (i64 i = src_height - 1; i != 0; --i) {
+        i64 rows_offset = i * src_width;
+        __m256 _old_y = _mm256_sub_ps(_height_half, _mm256_set1_ps((f32)i));
+
+        for (i64 j = src_width; j >= 0; j -= 8) {
+            __m256 _old_x = _mm256_set1_ps((f32)j);
+            _old_x = _mm256_add_ps(_old_x, _old_x_offsets);
+            _old_x = _mm256_sub_ps(_width_half, _old_x); // _old_x
+
+            __m256 _new_x = _mm256_mul_ps(_old_y, _sin_a);
+            _new_x = _mm256_fmsub_ps(_cos_a, _old_x, _new_x);
+
+            __m256 _new_y = _mm256_mul_ps(_old_x, _sin_a);
+            _new_y = _mm256_fmadd_ps(_old_y, _cos_a, _new_y);
+
+            _new_x = _mm256_sub_ps(_width_half, _new_x);
+            _new_y = _mm256_sub_ps(_height_half, _new_y);
+
+            f32 *new_js = (f32 *)&_new_x;
+            f32 *new_is = (f32 *)&_new_y;
+
+            for (i32 k = 0; k < 8; ++k) {
+                i64 new_i = (i64)new_is[k];
+                i64 new_j = (i64)new_js[k];
+
+                if (new_i < src_height && new_j < src_width && new_j >= 0 &&
+                    new_i >= 0) {
+                    dst_data[new_i * src_width + new_j] =
+                        src_data[rows_offset + j + k];
+                }
+            }
+        }
+    }
 }
+
 static void matrix_u16_rotate(const Matrix *src, Matrix *dst, f32 sin_a,
                               f32 cos_a) {
     u16 *src_data = (u16 *)src->data;
@@ -111,13 +155,21 @@ void matrix_rotate(Matrix *src, f32 degrees, PostProcess post_process) {
     f32 cos_a = cosf(deg_to_rad(degrees));
     f32 sin_a = sinf(deg_to_rad(degrees));
 
-    benchmark(matrix rotation) {
+    benchmark(matrix avx rotation) {
         if (src->matrix_type == U8_MATRIX) {
             matrix_u8_rotate_avx(src, &dst, sin_a, cos_a);
         } else {
             matrix_u16_rotate(src, &dst, sin_a, cos_a);
         }
     }
+
+    // benchmark(matrix rotation) {
+    //     if (src->matrix_type == U8_MATRIX) {
+    //         matrix_u8_rotate(src, &dst, sin_a, cos_a);
+    //     } else {
+    //         matrix_u16_rotate(src, &dst, sin_a, cos_a);
+    //     }
+    // }
 
     matrix_free(src);
     matrix_rotation_post_process(&dst, post_process);

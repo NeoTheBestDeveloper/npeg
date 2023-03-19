@@ -9,3 +9,4 @@ npeg_sources = files(
 npeg_sources += math_sources
 npeg_sources += image_formats_sources
 npeg_sources += algorithms_sources
+
