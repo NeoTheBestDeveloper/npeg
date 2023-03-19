@@ -4,8 +4,8 @@ project('npeg', 'c',
     'warning_level=3',
     'c_std=c11',
     'buildtype=debug',
-    'b_sanitize=address,undefined',
-    'optimization=0',
+    # 'b_sanitize=address,undefined',
+    'optimization=3',
     'b_lundef=false'
 ])
 
@@ -43,8 +43,13 @@ avx_flags = [
   '-mavx2',
 ]
 
+debug_flags = [
+  '-fsanitize=address,undefined'
+]
+
 if get_option('buildtype').startswith('debug')
   add_project_arguments('-DDEBUG', language : 'c')
+  add_project_arguments(cc.get_supported_arguments(debug_flags), language : 'c')
 endif
 
 add_project_arguments(cc.get_supported_arguments(warning_flags), language: 'c')

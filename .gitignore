@@ -9,3 +9,4 @@ assets
 *.png
 *.jpg
 optimization.md
+__pycache__

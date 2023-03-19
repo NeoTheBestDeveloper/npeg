@@ -5,19 +5,19 @@
 #include "../math/matrix.h"
 
 typedef enum {
-    PNG,
-    JPG,
-    PAM,
-    PBM,
-    PGM,
-    PPM,
+  PNG = 0,
+  JPG = 1,
+  PAM = 2,
+  PBM = 3,
+  PGM = 4,
+  PPM = 5,
 } ImageFormat;
 
 typedef struct {
-    Matrix *channels;
-    u16 max_colors;
-    u8 channels_count;
-    ImageFormat format;
+  Matrix *channels;
+  u16 max_colors;
+  u8 channels_count;
+  ImageFormat format;
 } Img;
 
 Img *img_open(const char *path);
