@@ -4,12 +4,6 @@ release
 .cache
 cache
 assets
-*.pbm
-*.pgm
-*.ppm
-*.ppa
-*.png
-*.jpg
 optimization.md
 __pycache__
 dist

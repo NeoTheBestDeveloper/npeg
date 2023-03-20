@@ -61,3 +61,7 @@ class Img:
 
     def rotate(self, degrees: float, inter: Interpolation = Interpolation.INTER_NONE) -> None:
         c_npeg.img_rotate(self._img_struct, c_float(degrees), c_int(inter.value))
+
+    def close(self) -> None:
+        """Free allocated memory for image. Run automatically with python context manager."""
+        c_npeg.img_free(self._img_struct)
