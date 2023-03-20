@@ -26,6 +26,7 @@ pyright = "^1.1.299"
 mypy = "^1.1.1"
 pre-commit = "^3.2.0"
 tox = "^4.4.7"
+tox-gh-actions = "^3.1.0"
 
 [build-system]
 requires = ["poetry-core"]
