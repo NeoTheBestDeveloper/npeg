@@ -7,20 +7,25 @@ from .pbm_img import PbmImg
 
 
 def img_open(path: str | Path) -> PbmImg | NoReturn:
+    """
+    Open and parsing image, return one of img subclasses:
+        - PbmImg (class for .pbm format, work in ascii and binary modes).
+    """
     img_result = c_npeg.img_read(Path(path).expanduser().as_posix().encode())
     img = c_npeg.cast_void_to_img(img_result.data)
 
     if img_result.type == ImgResultType.FILE_DOES_NOT_EXISTS:
         raise FileNotFoundError(f"No such file {path}")
-    elif img_result.type == ImgResultType.DO_NOT_HAVE_READ_PERMISSIONS:
+    if img_result.type == ImgResultType.DO_NOT_HAVE_READ_PERMISSIONS:
         raise PermissionError(f"Permission denied {path}")
-    elif img_result.type == ImgResultType.IMG_TYPE_IS_NOT_SUPPORTED_YET:
+    if img_result.type == ImgResultType.IMG_TYPE_IS_NOT_SUPPORTED_YET:
         raise ImgTypeIsNotSupportedYet()
-    elif img_result.type == ImgResultType.UNKNOWN_IMG_TYPE:
+    if img_result.type == ImgResultType.UNKNOWN_IMG_TYPE:
         raise UnknownImgTypeError()
 
     if img.contents.type == ImgType.PBM.value:
         return PbmImg(img)
+    raise UnknownImgTypeError()
 
 
 __all__ = [

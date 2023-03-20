@@ -31,4 +31,7 @@ class ImgStruct(Structure):
     ]
 
     def __str__(self) -> str:
-        return f"Img(channels={self.channels[0]}, depth={self.depth}, channels_count={self.channels_count}, format={ImgType(self.type)})"
+        return (
+            f"Img(channels={self.channels[0]}, depth={self.depth}, channels_count={self.channels_count},"
+            f" format={ImgType(self.type)})"
+        )

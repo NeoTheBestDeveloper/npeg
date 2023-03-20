@@ -9,15 +9,15 @@ project('npeg', 'c',
     'b_lundef=false'
 ])
 
-subdir('npeg')
-incdir = include_directories('npeg/include')
+subdir('core')
+incdir = include_directories('core/include')
 
 cc = meson.get_compiler('c')
 warning_flags = [
-  '-Wfloat-equal', 
-  '-Wundef', 
-  '-Wshadow', 
-  '-Wpointer-arith', 
+  '-Wfloat-equal',
+  '-Wundef',
+  '-Wshadow',
+  '-Wpointer-arith',
   '-Wcast-align',
   '-Wwrite-strings',
   '-Wcast-qual',
@@ -25,7 +25,7 @@ warning_flags = [
   '-Wswitch-enum',
   '-Wconversion',
   '-Wformat=2',
-  '-Wpedantic', 
+  '-Wpedantic',
   '-Wformat-security',
   '-Wtype-limits',
   '-Wunused-result',

@@ -9,15 +9,12 @@ from .bindings import (
     ImgStruct,
 )
 
-__all__ = ("img_open",)
-
 
 class Img:
+    """Base class for img."""
+
     _img_struct: ImgStruct
     channels: MatrixStruct
-    depth: int
-    channels_count: int
-    type: ImgType
 
     def __enter__(self):
         return self
@@ -27,6 +24,7 @@ class Img:
 
     @property
     def max_colors(self) -> int:
+        """Return max colors count (2**depth)"""
         return 2**self._img_struct.contents.depth
 
     @property
@@ -53,12 +51,13 @@ class Img:
         self._img_struct = img_struct
 
     def __str__(self) -> str:
-        return f"Img(max_colors={self.max_colors}, channels_count={self.channels_count}, type={self.type}, size={self.width}x{self.height})"
+        return (
+            f"Img(max_colors={self.max_colors}, channels_count={self.channels_count}, type={self.type},"
+            f" size={self.width}x{self.height})"
+        )
 
     def write(self, path: str | Path) -> None:
         c_npeg.img_write(self._img_struct, Path(path).expanduser().as_posix().encode())
 
-    def rotate(
-        self, degrees: float, inter: Interpolation = Interpolation.INTER_NONE
-    ) -> None:
+    def rotate(self, degrees: float, inter: Interpolation = Interpolation.INTER_NONE) -> None:
         c_npeg.img_rotate(self._img_struct, c_float(degrees), c_int(inter.value))

@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "npeg"
+version = "0.0.1"
+description = "Small and blazingly fast python library for image processing."
+authors = ["NeoTheBestDeveloper <neothebestmain@protonmail.com>"]
+license = "GPLv3"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    'Programming Language :: Python :: 3.10',
+    'Operating System :: POSIX :: Linux',
+    'Development Status :: 2 - Pre-Alpha',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+]
+include = ["./npeg/bindings/_c_npeg.so"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.2"
+pylint = "^2.17.0"
+ruff = "^0.0.257"
+black = "^23.1.0"
+pyright = "^1.1.299"
+mypy = "^1.1.1"
+pre-commit = "^3.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+release = "scripts.build:release"
+dev = "scripts.build:dev"
+
+
+[tool.pylint]
+max-line-length = 120
+disable = [
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "missing-module-docstring",
+    "too-few-public-methods",
+    "cyclic-import",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.black]
+color = true
+line-length = 120
+
+[tool.mypy]
+python_version = '3.10'
+
+[tool.pyright]
