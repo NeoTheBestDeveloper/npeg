@@ -20,7 +20,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install c dependencies
       run: |
-        apt update && apt install clang meson
+        sudo apt update 
+        sudo apt install -y clang meson 
     - name: Install python dependencies
       run: |
         python -m pip install poetry
