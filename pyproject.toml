@@ -32,8 +32,9 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-build_release = "scripts.build:build_release"
-build_dev = "scripts.build:build_dev"
+build_release_lib = "scripts.build:build_release_lib"
+build_dev_lib = "scripts.build:build_dev_lib"
+build_pkg = "scripts.build:build_pkg"
 
 
 [tool.pylint]
