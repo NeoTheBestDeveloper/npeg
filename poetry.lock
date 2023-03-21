@@ -459,6 +459,23 @@ files = [
 ]
 
 [[package]]
+name = "meson"
+version = "1.0.1"
+description = "A high performance build system"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "meson-1.0.1-py3-none-any.whl", hash = "sha256:98d6158c71e34dfd32c77014109003304eeda1c7e24b8e2448261dcd9d95f968"},
+    {file = "meson-1.0.1.tar.gz", hash = "sha256:d926b730de6f518728cc7c57bc5e701667bae0c3522f9e369427b2cc7839d3c1"},
+]
+
+[package.extras]
+ninja = ["ninja (>=1.8.2)"]
+progress = ["tqdm"]
+typing = ["mypy", "typing-extensions"]
+
+[[package]]
 name = "mypy"
 version = "1.1.1"
 description = "Optional static typing for Python"
@@ -1044,4 +1061,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "23725a6ace7c8dd535a260839a02f9eb3d708f7aa323fe9ffa7332557f07a657"
+content-hash = "67cc705a2eac65b00a9be967a8b7b05924794387e3b6c544e655098d3c31b3ec"
