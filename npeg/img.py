@@ -4,7 +4,6 @@ from pathlib import Path
 from .bindings import (
     Interpolation,
     npeg_core,
-    MatrixStruct,
     ImgType,
     ImgStruct,
 )
@@ -14,17 +13,26 @@ class Img:
     """Base class for img."""
 
     _img_struct: ImgStruct
-    channels: MatrixStruct
+
+    def __init__(self, img_struct: ImgStruct) -> None:
+        self._img_struct = img_struct
+
+    def __repr__(self) -> str:
+        return (
+            f"Img(max_colors={self.max_colors}, channels_count={self.channels_count}, type={self.type},"
+            f" size={self.width}x{self.height})"
+        )
 
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *_) -> None:
         npeg_core.img_free(self._img_struct)
 
     @property
     def max_colors(self) -> int:
-        """Return max colors count (2**depth)"""
+        """Return max colors count=2^depth."""
+
         return 2**self._img_struct.contents.depth
 
     @property
@@ -47,21 +55,41 @@ class Img:
     def height(self) -> int:
         return self._img_struct.contents.channels[0].height
 
-    def __init__(self, img_struct: ImgStruct) -> None:
-        self._img_struct = img_struct
+    @property
+    def shape(self) -> tuple[int, int]:
+        """Return img shape like '(width, height)'."""
 
-    def __str__(self) -> str:
-        return (
-            f"Img(max_colors={self.max_colors}, channels_count={self.channels_count}, type={self.type},"
-            f" size={self.width}x{self.height})"
-        )
+        return (self.width, self.height)
 
     def write(self, path: str | Path) -> None:
         npeg_core.img_write(self._img_struct, Path(path).expanduser().as_posix().encode())
 
-    def rotate(self, degrees: float, inter: Interpolation = Interpolation.INTER_NONE) -> None:
-        npeg_core.img_rotate(self._img_struct, c_float(degrees), c_int(inter.value))
+    def rotate(self, degrees: float, inter: Interpolation | None = None) -> None:
+        """
+        Rotate img around the center, parts which will be out of range will not be at the img.
+        Void places will be fillen with white color. Also work with negative degrees.
+
+        Example (rotated by 65 degrees):
+
+        |-------------------|                |-------------------|
+        |g g g . . g g g g g|                |. . . . . g g g . .|
+        |g g g . . g . . . g|                |. . . g g g g . . .|
+        |g g g . . g . . . g|                |. g g g g g . . . .|
+        |g g g . . g . . . g|         #      |g . g g g . . . g g|
+        |g g g . . g . . . g|         ##     |g g g . . . g g . g|
+        |g g g . . g . . . g|    ########    |. . . . . g . . . .|
+        |g g g . . g . . . g|         ##     |. . . g . . . . . g|
+        |g g g . . g . . . g|         #      |. . g g . . . g g .|
+        |g g g . . g . . . g|                |. . . g . . g g . .|
+        |g g g . . g g g g g|                |. . . . g g . . . .|
+        |-------------------|                |-------------------|
+        """
+
+        npeg_core.img_rotate(
+            self._img_struct, c_float(degrees), c_int(Interpolation.INTER_NONE if inter is None else inter)
+        )
 
     def close(self) -> None:
         """Free allocated memory for image. Run automatically with python context manager."""
+
         npeg_core.img_free(self._img_struct)

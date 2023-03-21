@@ -11,5 +11,5 @@ class PbmImgStruct(Structure):
         ("is_ascii", c_bool),
     ]
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"Img(img={self.img} is_ascii={self.is_ascii})"

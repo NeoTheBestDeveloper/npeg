@@ -3,7 +3,7 @@ from os import chmod, remove
 import pytest
 
 from npeg import img_read
-from npeg.exceptions import ImgTypeIsNotSupportedYet, UnknownImgTypeError
+from npeg.exceptions import UnknownImgTypeError
 
 IMGS_PATH = "tests/imgs"
 
@@ -29,7 +29,7 @@ def test_file_does_not_exists():
 
 
 def test_img_type_is_not_supported_yet():
-    with pytest.raises(ImgTypeIsNotSupportedYet):
+    with pytest.raises(NotImplementedError):
         img_read(f"{IMGS_PATH}/raw/small_sample1.png")
 
 

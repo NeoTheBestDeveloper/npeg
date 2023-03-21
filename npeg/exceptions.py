@@ -1,6 +1,2 @@
 class UnknownImgTypeError(Exception):
     ...
-
-
-class ImgTypeIsNotSupportedYet(Exception):
-    ...

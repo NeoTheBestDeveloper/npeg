@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 from ctypes import Structure, POINTER, c_char_p, c_int, c_uint8
 
 from . import MatrixStruct
@@ -9,7 +9,7 @@ __all__ = (
 )
 
 
-class ImgType(Enum):
+class ImgType(IntEnum):
     UNKNOWN_MAGIC = -1
     PNG = 0
     JPG = 1
@@ -19,6 +19,10 @@ class ImgType(Enum):
     PPM = 5
     WEBP = 6
     TIFF = 7
+
+    def __repr__(self) -> str:
+        cls_name = self.__class__.__name__
+        return f"{cls_name}.{self.name}"
 
 
 class ImgStruct(Structure):
@@ -30,7 +34,7 @@ class ImgStruct(Structure):
         ("channels_count", c_uint8),
     ]
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return (
             f"Img(channels={self.channels[0]}, depth={self.depth}, channels_count={self.channels_count},"
             f" format={ImgType(self.type)})"
