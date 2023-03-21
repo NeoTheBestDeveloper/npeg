@@ -9,10 +9,13 @@ classifiers = [
     "Programming Language :: Python :: 3",
     'Programming Language :: Python :: 3.10',
     'Operating System :: POSIX :: Linux',
+    'Operating System :: Microsoft :: Windows :: Windows 10',
     'Development Status :: 2 - Pre-Alpha',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Environment :: GPU'
 ]
-include = ["./npeg/bindings/_npeg_core.so"]
+include = ["./npeg/bindings/_npeg_core.so", "./npeg/bindings/_npeg_core.dll"]
+keywords = ["img", "avx", "opencl", "cuda", "processing", "computation"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
