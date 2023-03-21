@@ -1,3 +1,5 @@
+from os import chmod, remove
+
 import pytest
 
 from npeg import img_read
@@ -5,9 +7,14 @@ from . import IMGS_PATH
 
 
 def test_write_to_unwritable_file():
+    with open("unwritable_file", "w") as file:
+        file.close()
+    chmod("unwritable_file", 0000)
+
     with img_read(f"{IMGS_PATH}/ascii/small_sample1.pbm") as img:
         with pytest.raises(PermissionError):
-            img.write(f"{IMGS_PATH}/unwritable_file")
+            img.write("unwritable_file")
+    remove("unwritable_file")
 
 
 def test_write_with_same_img_type():
