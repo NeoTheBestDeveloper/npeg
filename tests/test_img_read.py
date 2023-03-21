@@ -4,8 +4,7 @@ import pytest
 
 from npeg import img_read
 from npeg.exceptions import UnknownImgTypeError
-
-IMGS_PATH = "tests/imgs"
+from . import IMGS_PATH
 
 
 @pytest.fixture

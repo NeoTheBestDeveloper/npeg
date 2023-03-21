@@ -8,8 +8,10 @@ from .bindings import (
     ImgStruct,
 )
 
+__all__ = ("BaseImg",)
 
-class Img:
+
+class BaseImg:
     """Base class for img."""
 
     _img_struct: ImgStruct
