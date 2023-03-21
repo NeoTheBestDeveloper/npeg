@@ -20,9 +20,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install meson 
-      uses: |
-        BSFishy/meson-build@v1.0.3 
-        egor-tensin/setup-clang@v1
+      uses: BSFishy/meson-build@v1.0.3 egor-tensin/setup-clang@v1
 
     - name: Install python dependencies
       run: |
