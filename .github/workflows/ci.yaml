@@ -29,3 +29,5 @@ jobs:
     - name: Test with tox
       run: poetry run tox
 
+    - name: Test sanitizer
+      run: poetry run build_dev_lib
