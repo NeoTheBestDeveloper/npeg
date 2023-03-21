@@ -22,10 +22,10 @@ def build_release_lib() -> None:
     system("cp release_build/libnpeg-core.so npeg/bindings/_npeg_core.so")
 
     system(
-        f"CC={CC} meson setup --cross-file=x86_64-w64-mingw32.txt"
+        f"CC={CC} meson setup --cross-file=x86_64-w64-mingw32.txt "
         "--buildtype=release release_win_build -Db_sanitize=none"
     )
-    system(f"CC={CC} meson compile -j 8 -C release_win_build")
+    system("meson compile -j 8 -C release_win_build")
     system("/usr/bin/x86_64-w64-mingw32-strip release_win_build/libnpeg-core.dll")
     system("cp release_win_build/libnpeg-core.dll npeg/bindings/_npeg_core.dll")
 
@@ -37,4 +37,4 @@ def build_pkg() -> None:
 
 
 def clean() -> None:
-    system("rm -rf release_build debug_build")
+    system("rm -rf release_build debug_build release_win_build debug_win_build")
