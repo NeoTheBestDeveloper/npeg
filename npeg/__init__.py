@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import NoReturn
 
-from .bindings import ImgResultType, ImgType, c_npeg
+from .bindings import ImgResultType, ImgType, c_npeg, Interpolation
 from .exceptions import ImgTypeIsNotSupportedYet, UnknownImgTypeError
 from .pbm_img import PbmImg
 
@@ -30,4 +30,5 @@ def img_read(path: str | Path) -> PbmImg | NoReturn:
 
 __all__ = [
     "img_read",
+    "Interpolation",
 ]
