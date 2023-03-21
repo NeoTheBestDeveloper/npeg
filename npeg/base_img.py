@@ -1,12 +1,10 @@
 from ctypes import c_float, c_int
 from pathlib import Path
+from typing import NoReturn
 
-from .bindings import (
-    Interpolation,
-    npeg_core,
-    ImgType,
-    ImgStruct,
-)
+from npeg.bindings.img_result_struct import ImgResultType
+
+from .bindings import Interpolation, npeg_core, ImgType, ImgStruct, ImgResultStruct
 
 __all__ = ("BaseImg",)
 
@@ -63,8 +61,12 @@ class BaseImg:
 
         return (self.width, self.height)
 
-    def write(self, path: str | Path) -> None:
-        npeg_core.img_write(self._img_struct, Path(path).expanduser().as_posix().encode())
+    def write(self, path: str | Path) -> None | NoReturn:
+        img_result: ImgResultStruct = npeg_core.img_write(self._img_struct, Path(path).expanduser().as_posix().encode())
+        if img_result.type == ImgResultType.DO_NOT_HAVE_WRITE_PERMISSIONS:
+            raise PermissionError
+        print(img_result.type)
+        return None
 
     def rotate(self, degrees: float, inter: Interpolation | None = None) -> None:
         """
