@@ -22,7 +22,7 @@ jobs:
     - name: Install meson 
       uses: |
         BSFishy/meson-build@v1.0.3 
-        uses: egor-tensin/setup-clang@v1
+        egor-tensin/setup-clang@v1
 
     - name: Install python dependencies
       run: |
