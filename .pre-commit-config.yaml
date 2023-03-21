@@ -4,6 +4,12 @@ repos:
     hooks:
     -   id: check-yaml
 
+-   repo: https://github.com/commitizen-tools/commitizen
+    rev: master
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
 -   repo: local
     hooks:
     - id: ruff
@@ -33,6 +39,6 @@ repos:
 
     - id: black
       name: black
-      entry: poetry run black --check
+      entry: poetry run black --check --diff
       language: system
       types: [python]
