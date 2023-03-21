@@ -2,7 +2,7 @@
 name = "npeg"
 version = "0.0.1"
 description = "Small and blazingly fast python library for image processing."
-authors = ["NeoTheBestDeveloper <neothebestmain@protonmail.com>"]
+authors = ["NeoTheBestDeveloper <kiankasey91n@gmail.com>"]
 license = "GPLv3"
 readme = "README.md"
 classifiers = [
@@ -12,7 +12,7 @@ classifiers = [
     'Development Status :: 2 - Pre-Alpha',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 ]
-include = ["./npeg/bindings/_c_npeg.so"]
+include = ["./npeg/bindings/_npeg_core.so"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -42,6 +42,9 @@ build-backend = "poetry.core.masonry.api"
 build_release_lib = "scripts.build:build_release_lib"
 build_dev_lib = "scripts.build:build_dev_lib"
 build_pkg = "scripts.build:build_pkg"
+clean = "scripts.build:clean"
+npeg_version = "scripts.version:get_npeg_version"
+npeg_core_version = "scripts.version:get_npeg_core_version"
 
 
 [tool.pylint]

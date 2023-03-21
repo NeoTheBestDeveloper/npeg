@@ -1,5 +1,5 @@
-project('npeg', 'c',
-  version: '0.0.1',
+project('npeg-core', 'c',
+  version: run_command('poetry', 'run',  'npeg_core_version').stdout().strip(),
   default_options: [
     'warning_level=3',
     'c_std=c11',
@@ -53,4 +53,8 @@ add_project_arguments(cc.get_supported_arguments(avx_flags), language: 'c')
 cc = meson.get_compiler('c')
 math_dep = cc.find_library('m', required : true)
 
-shared_library('npeg', npeg_sources, include_directories: incdir, dependencies: math_dep)
+npeg = shared_library('npeg-core', npeg_sources, include_directories: incdir, dependencies: math_dep)
+
+if get_option('buildtype').startswith('debug')
+  executable('npeg-test-sanitizer', dev_sources, include_directories: incdir, link_with: npeg)
+endif
