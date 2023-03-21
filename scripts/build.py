@@ -12,8 +12,6 @@ def build_dev_lib() -> None:
 
 def build_release_lib() -> None:
     """Build release core library and copy shared object file into python npeg catalog."""
-    system("ls")
-    system("pwd")
     system(f"CC={CC} meson setup --buildtype=release release_build -Db_sanitize=none")
     system(f"CC={CC} meson compile -j 8 -C release_build")
     system("strip release_build/libnpeg-core.so")
