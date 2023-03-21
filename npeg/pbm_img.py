@@ -1,4 +1,4 @@
-from .bindings import PbmImgStruct, c_npeg, ImgStruct
+from .bindings import PbmImgStruct, npeg_core, ImgStruct
 from .img import Img
 
 
@@ -11,7 +11,7 @@ class PbmImg(Img):
 
     def __init__(self, img_struct: ImgStruct) -> None:
         super().__init__(img_struct)
-        self._children_img_struct = c_npeg.cast_img_to_pbm(img_struct)
+        self._children_img_struct = npeg_core.cast_img_to_pbm(img_struct)
 
     def __str__(self) -> str:
         return (

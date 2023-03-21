@@ -1,6 +1,14 @@
-# Npeg it is a small and blazingly fast python library for image processing.
-
 # Warning: project is unstable now.
+
+
+# Npeg 
+It is a small and blazingly fast python library for image processing.
+
+Why is it fast?
+
+- Npeg core written on C.
+- Npeg support cpu hardware acceleration, for example, avx. (In the process)
+- Npeg support gpu gardware acceleration, for example, cuda, opencl. (In the future)
 
 ## Supported formats
 
@@ -14,7 +22,6 @@
 - PPA (In the future)
 
 ## Examples
-
 ```python 
 from npeg import img_read, Interpolation
 
@@ -37,7 +44,7 @@ img.close()
 $ pip install npeg
 ```
 
-Or manually
+## Installation from source
 
 Dependencies:
 - poetry 

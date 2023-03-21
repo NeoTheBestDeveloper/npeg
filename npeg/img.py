@@ -3,7 +3,7 @@ from pathlib import Path
 
 from .bindings import (
     Interpolation,
-    c_npeg,
+    npeg_core,
     MatrixStruct,
     ImgType,
     ImgStruct,
@@ -20,7 +20,7 @@ class Img:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        c_npeg.img_free(self._img_struct)
+        npeg_core.img_free(self._img_struct)
 
     @property
     def max_colors(self) -> int:
@@ -57,11 +57,11 @@ class Img:
         )
 
     def write(self, path: str | Path) -> None:
-        c_npeg.img_write(self._img_struct, Path(path).expanduser().as_posix().encode())
+        npeg_core.img_write(self._img_struct, Path(path).expanduser().as_posix().encode())
 
     def rotate(self, degrees: float, inter: Interpolation = Interpolation.INTER_NONE) -> None:
-        c_npeg.img_rotate(self._img_struct, c_float(degrees), c_int(inter.value))
+        npeg_core.img_rotate(self._img_struct, c_float(degrees), c_int(inter.value))
 
     def close(self) -> None:
         """Free allocated memory for image. Run automatically with python context manager."""
-        c_npeg.img_free(self._img_struct)
+        npeg_core.img_free(self._img_struct)

@@ -16,10 +16,10 @@ __all__ = (
     "PbmImgStruct",
     "ImgType",
     "Interpolation",
-    "c_npeg",
+    "npeg_core",
 )
 
-LIB_PATH = Path(__file__).parent.joinpath("_c_npeg.so")
+LIB_PATH = Path(__file__).parent.joinpath("_npeg_core.so")
 
 
 def load_lib() -> CDLL:
@@ -47,4 +47,4 @@ def load_lib() -> CDLL:
     return dll
 
 
-c_npeg = load_lib()
+npeg_core = load_lib()

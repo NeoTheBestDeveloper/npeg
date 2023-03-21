@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import NoReturn
 
-from .bindings import ImgResultType, ImgType, c_npeg, Interpolation
+from .bindings import ImgResultType, ImgType, npeg_core, Interpolation
 from .exceptions import ImgTypeIsNotSupportedYet, UnknownImgTypeError
 from .pbm_img import PbmImg
 
@@ -11,8 +11,8 @@ def img_read(path: str | Path) -> PbmImg | NoReturn:
     Open and reading image, return one of img subclasses:
         - PbmImg (class for .pbm format, work in ascii and binary modes).
     """
-    img_result = c_npeg.img_read(Path(path).expanduser().as_posix().encode())
-    img = c_npeg.cast_void_to_img(img_result.data)
+    img_result = npeg_core.img_read(Path(path).expanduser().as_posix().encode())
+    img = npeg_core.cast_void_to_img(img_result.data)
 
     if img_result.type == ImgResultType.FILE_DOES_NOT_EXISTS.value:
         raise FileNotFoundError(f"No such file {path}")
