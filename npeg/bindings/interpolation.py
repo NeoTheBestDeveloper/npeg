@@ -3,7 +3,10 @@ from enum import IntEnum
 __all__ = ("Interpolation",)
 
 
+# TODO: write tests.
 class Interpolation(IntEnum):
+    """WRANING: it may be buggy now."""
+
     INTER_NONE = 0
     INTER_LINIAR = 1
     INTER_AVG = 2

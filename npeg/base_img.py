@@ -2,9 +2,8 @@ from ctypes import c_float, c_int
 from pathlib import Path
 from typing import NoReturn
 
-from npeg.bindings.img_result_struct import ImgResultType
-
-from .bindings import Interpolation, npeg_core, ImgType, ImgStruct, ImgResultStruct
+from .matrix import Matrix
+from .bindings import Interpolation, npeg_core, ImgType, ImgStruct, ImgResultStruct, ImgResultType
 
 __all__ = ("BaseImg",)
 
@@ -13,9 +12,11 @@ class BaseImg:
     """Base class for img."""
 
     _img_struct: ImgStruct
+    channels: list[Matrix]
 
     def __init__(self, img_struct: ImgStruct) -> None:
         self._img_struct = img_struct
+        self.channels = [Matrix(img_struct.contents.channels[i]) for i in range(img_struct.contents.channels_count)]
 
     def __repr__(self) -> str:
         return (
@@ -65,7 +66,6 @@ class BaseImg:
         img_result: ImgResultStruct = npeg_core.img_write(self._img_struct, Path(path).expanduser().as_posix().encode())
         if img_result.type == ImgResultType.DO_NOT_HAVE_WRITE_PERMISSIONS:
             raise PermissionError
-        print(img_result.type)
         return None
 
     def rotate(self, degrees: float, inter: Interpolation | None = None) -> None:

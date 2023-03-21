@@ -63,6 +63,7 @@ disable = [
     "unspecified-encoding",
     "redefined-outer-name",
     "useless-return",
+    "W0511",
 ]
 
 [tool.ruff]
