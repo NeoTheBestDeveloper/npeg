@@ -1,5 +1,6 @@
 build
 release_build
+debug_build
 release
 .cache
 cache
