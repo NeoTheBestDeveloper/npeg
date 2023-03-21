@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{matrix.platform}}
     strategy:
       matrix:
-        platform: [ubuntu-latest]
+        platform: [ubuntu-latest, windows]
         python-version: ['3.10']
 
     steps:
@@ -18,14 +18,17 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install c dependencies
-      run: |
-        sudo apt update 
-        sudo apt install -y clang meson 
+
+    - name: Install meson 
+      uses: |
+        BSFishy/meson-build@v1.0.3 
+        uses: egor-tensin/setup-clang@v1
+
     - name: Install python dependencies
       run: |
         python -m pip install poetry
         poetry install
+
     - name: Test with tox
       run: poetry run tox
 
