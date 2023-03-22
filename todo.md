@@ -9,7 +9,8 @@ a base feature to list, tuple, Array (by default it will be not python container
 - [ ] Add img conversion to another formats.
 - [ ] Add deep and shallow copy to img.
 - [ ] Add slices for img.
-
+- [ ] Add image saving from matrix like img_write(matrix, type)
+-
 # Future
 - [ ] cuda
 - [ ] opencl
