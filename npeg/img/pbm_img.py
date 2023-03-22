@@ -1,8 +1,8 @@
-from .base_img import BaseImg
-from .bindings import PbmImgStruct, npeg_core, ImgStruct
+from npeg.bindings import PbmImgStruct, npeg_core, ImgStruct
+from .img import Img
 
 
-class PbmImg(BaseImg):
+class PbmImg(Img):
     """Works with pbm in binary and ascii formats."""
 
     _children_img_struct: PbmImgStruct

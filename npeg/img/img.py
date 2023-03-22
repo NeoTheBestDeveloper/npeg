@@ -2,13 +2,13 @@ from ctypes import c_float, c_int
 from pathlib import Path
 from typing import NoReturn
 
-from .matrix import Matrix
-from .bindings import Interpolation, npeg_core, ImgType, ImgStruct, ImgResultStruct, ImgResultType
+from npeg.matrix import Matrix
+from npeg.bindings import Interpolation, npeg_core, ImgType, ImgStruct, ImgResultStruct, ImgResultType
 
-__all__ = ("BaseImg",)
+__all__ = ("Img",)
 
 
-class BaseImg:
+class Img:
     """Base class for img."""
 
     _img_struct: ImgStruct

@@ -2,7 +2,7 @@ import pytest
 
 from npeg import img_read
 from npeg.bindings.img_struct import ImgType
-from npeg.pbm_img import PbmImg
+from npeg.img import PbmImg
 from . import IMGS_PATH
 
 

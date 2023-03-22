@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import NoReturn
 
-
-from .pbm_img import PbmImg
+from .img import Img, PbmImg
 from .exceptions import UnknownImgTypeError
 from .bindings import ImgResultType, ImgType, npeg_core, Interpolation, ImgStruct, ImgResultStruct
 
@@ -12,7 +11,7 @@ __all__ = (
 )
 
 
-def _cast_img(img_struct: ImgStruct) -> PbmImg | NoReturn:
+def _cast_img(img_struct: ImgStruct) -> Img | NoReturn:
     """Depending on img type return corresponding img subclass."""
     match img_struct.contents.type:
         case ImgType.PBM:
@@ -21,7 +20,7 @@ def _cast_img(img_struct: ImgStruct) -> PbmImg | NoReturn:
             raise UnknownImgTypeError()
 
 
-def img_read(path: str | Path) -> PbmImg | NoReturn:
+def img_read(path: str | Path) -> Img | NoReturn:
     """
     Open and reading image, return one of img subclasses:
         - PbmImg (class for .pbm format, work in ascii and binary modes).

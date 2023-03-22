@@ -14,6 +14,8 @@ def test_write_to_unwritable_file():
     with img_read(f"{IMGS_PATH}/ascii/small_sample1.pbm") as img:
         with pytest.raises(PermissionError):
             img.write("unwritable_file")
+
+    chmod("unwritable_file", 0o777)
     remove("unwritable_file")
 
 
