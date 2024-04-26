@@ -21,9 +21,9 @@ def test_write_to_unwritable_file():
 
 def test_write_with_same_img_type():
     with img_read(f"{IMGS_PATH}/ascii/small_sample1.pbm") as src:
-        src.write("res.pbm")
+        src.write("test_write_with_same_img_type_res.pbm")
 
-        with img_read("res.pbm") as dst:
+        with img_read("test_write_with_same_img_type_res.pbm") as dst:
             assert dst.channels_count == src.channels_count
             assert dst.height == src.height
             assert dst.width == src.width
@@ -31,3 +31,4 @@ def test_write_with_same_img_type():
             assert dst.depth == src.depth
             assert dst.type == src.type
             assert dst.shape == src.shape
+    remove("test_write_with_same_img_type_res.pbm")

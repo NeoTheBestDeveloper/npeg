@@ -1,6 +1,6 @@
 from types import NotImplementedType
 
-from .bindings import MatrixStruct
+from .bindings import MatrixStruct, npeg_core
 
 
 # TODO: add slices for reading
@@ -19,7 +19,7 @@ class Matrix:
     def __eq__(self, other: object) -> bool | NotImplementedType:
         if not isinstance(other, Matrix):
             return NotImplemented
-        return self._matrix_struct == other._matrix_struct
+        return npeg_core.matrix_cmp(self._matrix_struct, other._matrix_struct)
 
     @property
     def width(self) -> int:

@@ -10,15 +10,15 @@ __all__ = (
 
 
 class ImgType(IntEnum):
-    UNKNOWN_MAGIC = -1
-    PNG = 0
-    JPG = 1
-    PAM = 2
-    PBM = 3
-    PGM = 4
-    PPM = 5
-    WEBP = 6
-    TIFF = 7
+    UNKNOWN_MAGIC = 0
+    PNG = 1
+    JPG = 2
+    PAM = 3
+    PBM = 4
+    PGM = 5
+    PPM = 6
+    WEBP = 7
+    TIFF = 8
 
     def __repr__(self) -> str:
         cls_name = self.__class__.__name__

@@ -13,3 +13,5 @@ def test_matrix_eq():
     with img_read(f"{IMGS_PATH}/ascii/small_sample1.pbm") as img1:
         with img_read(f"{IMGS_PATH}/ascii/small_sample1.pbm") as img2:
             assert img1.channels[0] == img2.channels[0]
+            img1.rotate(10)
+            assert img1.channels[0] != img2.channels[0]
